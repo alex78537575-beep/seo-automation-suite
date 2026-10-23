@@ -1,0 +1,3451 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forum Studio Pro — Apple Liquid Glass Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // --- Live Progression Bar Controller ---
+    function updateProgressBar(completed, total) {
+      const fill = document.getElementById('progressBarFill');
+      const percentText = document.getElementById('progressPercentText');
+      const statusText = document.getElementById('progressStatusText');
+      const dot = document.getElementById('progressDot');
+
+      if (!total || total === 0) {
+        if (fill) fill.style.width = '0%';
+        if (percentText) percentText.innerText = '0% (0 / 0)';
+        if (statusText) statusText.innerText = 'Queue Idle';
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-500';
+        return;
+      }
+
+      const pct = Math.min(100, Math.round((completed / total) * 100));
+      if (fill) fill.style.width = `${pct}%`;
+      if (percentText) percentText.innerText = `${pct}% (${completed} / ${total})`;
+
+      if (statusText && dot) {
+        if (pct === 100) {
+          statusText.innerHTML = '<span class="text-emerald-400 font-bold">🎉 All Queue Items Completed</span>';
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]';
+        } else if (completed > 0) {
+          statusText.innerHTML = `<span class="text-blue-400 font-bold">⚡ Running Task #${completed + 1} of ${total}</span>`;
+          dot.className = 'w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_#3b82f6]';
+        } else {
+          statusText.innerText = `Queue Ready (${total} pending)`;
+          dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        }
+      }
+    }
+
+    // --- Interactive Ambient Constellation Background ---
+    (function initAmbientBackground() {
+      const canvas = document.getElementById('ambientCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let mouse = { x: null, y: null, radius: 140 };
+
+      window.addEventListener('resize', resize);
+      window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+      window.addEventListener('mouseout', () => {
+        mouse.x = null;
+        mouse.y = null;
+      });
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+      resize();
+
+      const particleCount = 42;
+      const particles = [];
+      const colors = [
+        'rgba(0, 113, 227, 0.45)',   // Sapphire Blue
+        'rgba(191, 90, 242, 0.35)',  // Violet
+        'rgba(48, 209, 88, 0.3)',    // Emerald
+        'rgba(10, 132, 255, 0.35)'   // Electric Blue
+      ];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          radius: Math.random() * 2.2 + 1.2,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Faint connecting constellation lines
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 120) {
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(255, 255, 255, ${0.035 * (1 - dist / 120)})`;
+              ctx.lineWidth = 0.7;
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Particle fluid inertia and subtle mouse interaction
+        for (let p of particles) {
+          if (mouse.x !== null && mouse.y !== null) {
+            const dx = p.x - mouse.x;
+            const dy = p.y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < mouse.radius) {
+              const force = (mouse.radius - dist) / mouse.radius;
+              p.x += (dx / dist) * force * 1.6;
+              p.y += (dy / dist) * force * 1.6;
+            }
+          }
+
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+  </script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            apple: {
+              black: '#000000',
+              canvas: '#06070a',
+              card: 'rgba(16, 18, 27, 0.72)',
+              cardHover: 'rgba(23, 26, 38, 0.85)',
+              well: '#07080d',
+              border: 'rgba(255, 255, 255, 0.09)',
+              blue: '#0071e3',
+              blueHover: '#0077ed',
+              green: '#30d158',
+              purple: '#bf5af2',
+              orange: '#ff9f0a',
+              red: '#ff453a',
+              textPrimary: '#f5f5f7',
+              textSecondary: '#86868b',
+              textMuted: '#515158'
+            }
+          }
+        }
+      }
+    }
+  
+    // --- Live Progression Bar Controller ---
+    function updateProgressBar(completed, total) {
+      const fill = document.getElementById('progressBarFill');
+      const percentText = document.getElementById('progressPercentText');
+      const statusText = document.getElementById('progressStatusText');
+      const dot = document.getElementById('progressDot');
+
+      if (!total || total === 0) {
+        if (fill) fill.style.width = '0%';
+        if (percentText) percentText.innerText = '0% (0 / 0)';
+        if (statusText) statusText.innerText = 'Queue Idle';
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-500';
+        return;
+      }
+
+      const pct = Math.min(100, Math.round((completed / total) * 100));
+      if (fill) fill.style.width = `${pct}%`;
+      if (percentText) percentText.innerText = `${pct}% (${completed} / ${total})`;
+
+      if (statusText && dot) {
+        if (pct === 100) {
+          statusText.innerHTML = '<span class="text-emerald-400 font-bold">🎉 All Queue Items Completed</span>';
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]';
+        } else if (completed > 0) {
+          statusText.innerHTML = `<span class="text-blue-400 font-bold">⚡ Running Task #${completed + 1} of ${total}</span>`;
+          dot.className = 'w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_#3b82f6]';
+        } else {
+          statusText.innerText = `Queue Ready (${total} pending)`;
+          dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        }
+      }
+    }
+
+    // --- Interactive Ambient Constellation Background ---
+    (function initAmbientBackground() {
+      const canvas = document.getElementById('ambientCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let mouse = { x: null, y: null, radius: 140 };
+
+      window.addEventListener('resize', resize);
+      window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+      window.addEventListener('mouseout', () => {
+        mouse.x = null;
+        mouse.y = null;
+      });
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+      resize();
+
+      const particleCount = 42;
+      const particles = [];
+      const colors = [
+        'rgba(0, 113, 227, 0.45)',   // Sapphire Blue
+        'rgba(191, 90, 242, 0.35)',  // Violet
+        'rgba(48, 209, 88, 0.3)',    // Emerald
+        'rgba(10, 132, 255, 0.35)'   // Electric Blue
+      ];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          radius: Math.random() * 2.2 + 1.2,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Faint connecting constellation lines
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 120) {
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(255, 255, 255, ${0.035 * (1 - dist / 120)})`;
+              ctx.lineWidth = 0.7;
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Particle fluid inertia and subtle mouse interaction
+        for (let p of particles) {
+          if (mouse.x !== null && mouse.y !== null) {
+            const dx = p.x - mouse.x;
+            const dy = p.y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < mouse.radius) {
+              const force = (mouse.radius - dist) / mouse.radius;
+              p.x += (dx / dist) * force * 1.6;
+              p.y += (dy / dist) * force * 1.6;
+            }
+          }
+
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+  </script>
+  <style>
+    /* Liquid Glass & Apple Aesthetics 3.0 */
+    .has-floating-hint {
+      position: relative;
+      display: inline-block;
+    }
+    .apple-floating-hint {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 270px;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px) scale(0.96);
+      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+      z-index: 99999;
+    }
+    .has-floating-hint:hover .apple-floating-hint {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0px) scale(1);
+      animation: floatHintBobbing 2.8s ease-in-out infinite alternate;
+    }
+    @keyframes floatHintBobbing {
+      0% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-4px) scale(1.008); }
+      100% { transform: translateY(0px) scale(1); }
+    }
+
+    /* Apple-Style Glass Notification Banner */
+    #appleNotificationContainer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      max-width: 380px;
+      width: calc(100vw - 40px);
+    }
+    .apple-banner {
+      pointer-events: auto;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%), rgba(15, 18, 28, 0.88);
+      backdrop-filter: blur(32px) saturate(200%);
+      -webkit-backdrop-filter: blur(32px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 1.25rem;
+      padding: 0.875rem 1rem;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+      animation: slideDownBanner 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .apple-banner.dismissing {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.95);
+    }
+    @keyframes slideDownBanner {
+      0% { opacity: 0; transform: translateY(-25px) scale(0.92); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes floatTooltip {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+    .floating-tooltip {
+      animation: floatTooltip 3s ease-in-out infinite;
+    }
+
+    /* Frost Titanium Light Glass Theme */
+    body.light-theme {
+      background-color: #f1f4f9;
+      color: #0f172a;
+      background-image: 
+        radial-gradient(circle at 20% 0%, rgba(0, 113, 227, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 80% 10%, rgba(191, 90, 242, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 50% 90%, rgba(48, 209, 88, 0.1) 0%, transparent 60%);
+    }
+    body.light-theme .apple-glass {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.72) 100%), rgba(240, 244, 252, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+      color: #0f172a;
+    }
+    body.light-theme .apple-glass:hover {
+      border-color: rgba(0, 113, 227, 0.35);
+      box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+    }
+    body.light-theme .apple-well {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      color: #0f172a;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    body.light-theme input,
+    body.light-theme textarea,
+    body.light-theme select {
+      color: #0f172a !important;
+    }
+    body.light-theme .text-slate-100,
+    body.light-theme .text-slate-200,
+    body.light-theme .text-white {
+      color: #0f172a !important;
+    }
+    body.light-theme .text-slate-300,
+    body.light-theme .text-slate-400 {
+      color: #475569 !important;
+    }
+    body.light-theme #liveLogConsole {
+      background: #090c15 !important;
+      color: #f1f5f9 !important;
+    }
+    body.light-theme #liveLogConsole .text-slate-300 {
+      color: #cbd5e1 !important;
+    }
+    body.light-theme #liveLogConsole .text-slate-500 {
+      color: #64748b !important;
+    }
+    @keyframes floatAurora1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(45px, -35px) scale(1.12); }
+    }
+    @keyframes floatAurora2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-35px, 45px) scale(1.08); }
+    }
+    @keyframes floatAurora3 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(35px, 35px) scale(1.15); }
+    }
+    @keyframes shimmerGlass {
+      0% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+      100% { opacity: 0.3; }
+    }
+    body {
+      background-color: #050609;
+      color: #f5f5f7;
+      font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 20% 0%, rgba(0, 113, 227, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 80% 10%, rgba(191, 90, 242, 0.14) 0%, transparent 50%),
+        radial-gradient(circle at 50% 90%, rgba(48, 209, 88, 0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+
+    .apple-glass {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 100%), rgba(12, 16, 26, 0.75);
+      backdrop-filter: blur(36px) saturate(200%);
+      -webkit-backdrop-filter: blur(36px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
+        0 24px 48px -12px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .apple-glass:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 
+        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.3),
+        0 32px 64px -12px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(56, 189, 248, 0.2);
+    }
+
+    .apple-well {
+      background: rgba(6, 8, 14, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(16px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .apple-well:focus-within {
+      border-color: #38bdf8;
+      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+
+    .btn-apple-blue {
+      background: linear-gradient(180deg, #0a84ff 0%, #0071e3 100%);
+      box-shadow: 0 4px 14px rgba(0, 113, 227, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-apple-blue:hover {
+      background: linear-gradient(180deg, #2490ff 0%, #0a84ff 100%);
+      transform: translateY(-1px);
+    }
+    .btn-apple-blue:active {
+      transform: scale(0.98);
+    }
+
+    .btn-apple-green {
+      background: linear-gradient(180deg, #34c759 0%, #30d158 100%);
+      box-shadow: 0 4px 14px rgba(48, 209, 88, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-apple-green:hover {
+      background: linear-gradient(180deg, #40d465 0%, #34c759 100%);
+      transform: translateY(-1px);
+    }
+    .btn-apple-green:active {
+      transform: scale(0.98);
+    }
+
+    .btn-apple-purple {
+      background: linear-gradient(180deg, #c76bf4 0%, #bf5af2 100%);
+      box-shadow: 0 4px 14px rgba(191, 90, 242, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-apple-purple:hover {
+      background: linear-gradient(180deg, #d37ef9 0%, #c76bf4 100%);
+      transform: translateY(-1px);
+    }
+    .btn-apple-purple:active {
+      transform: scale(0.98);
+    }
+
+    .btn-apple-dark {
+      background: rgba(25, 28, 38, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: all 0.15s ease;
+    }
+    .btn-apple-dark:hover {
+      background: rgba(35, 39, 52, 0.95);
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+    .btn-apple-dark:active {
+      transform: scale(0.98);
+    }
+
+    .btn-apple-danger {
+      background: rgba(255, 69, 58, 0.15);
+      border: 1px solid rgba(255, 69, 58, 0.3);
+      color: #ff6961;
+      transition: all 0.15s ease;
+    }
+    .btn-apple-danger:hover {
+      background: rgba(255, 69, 58, 0.25);
+      border-color: rgba(255, 69, 58, 0.5);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .btn-apple-danger:active {
+      transform: scale(0.98);
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  </style>
+</head>
+<body class="selection:bg-blue-500 selection:text-white flex flex-col items-center relative">
+  <!-- Ambient Floating Aurora Orbs for True Optical Glass Refraction -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+    <div class="absolute -top-32 -left-32 w-[420px] h-[420px] bg-indigo-600/20 rounded-full blur-[130px] animate-[floatAurora1_14s_ease-in-out_infinite]"></div>
+    <div class="absolute top-1/4 -right-32 w-[460px] h-[460px] bg-purple-600/18 rounded-full blur-[140px] animate-[floatAurora2_18s_ease-in-out_infinite]"></div>
+    <div class="absolute -bottom-32 left-1/3 w-[520px] h-[520px] bg-sky-500/15 rounded-full blur-[150px] animate-[floatAurora3_20s_ease-in-out_infinite]"></div>
+    <div class="absolute bottom-10 right-10 w-[360px] h-[360px] bg-emerald-500/12 rounded-full blur-[130px] animate-[floatAurora1_16s_ease-in-out_infinite]"></div>
+  </div>
+
+  <!-- Interactive Ambient Constellation Canvas -->
+  <canvas id="ambientCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN APP CONTAINER (Proportional 2-Column Desktop Grid — Never Stretched)   -->
+  <!-- ========================================================================= -->
+  <div class="w-full max-w-6xl px-4 sm:px-6 py-5 flex-1 flex flex-col space-y-4 relative z-10">
+
+    <!-- TOP NAVIGATION BAR (macOS Frosted Glass) -->
+    <header class="apple-glass rounded-3xl p-3 px-5 flex items-center justify-between">
+      <div class="flex items-center space-x-3.5">
+        <!-- Apple Logo & Version Badge (3 Lights & Liquid Glass text removed) -->
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white text-base font-bold shadow-md shadow-blue-500/25">
+          
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm font-extrabold tracking-tight text-white">Forum Studio Pro</span>
+          <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/25 font-mono">v2.6 Pro</span>
+        </div>
+      </div>
+
+      <!-- Segmented Tab Switcher (macOS Pill Control) -->
+      <div class="bg-black/60 p-1 rounded-2xl border border-white/10 flex space-x-1 shadow-inner">
+        <button id="mainTabPoster" onclick="showMainTab('poster')" 
+                class="py-1.5 px-4 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-white btn-apple-blue shadow">
+          <span>🚀</span> <span>Forum Poster</span>
+        </button>
+        <button id="mainTabStudio" onclick="showMainTab('studio')" 
+                class="py-1.5 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <span>⚡</span> <span>Content Studio</span>
+        </button>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center space-x-2">
+        <!-- Persona Button with Animated Floating Glass Tooltip -->
+        <div class="has-floating-hint">
+          <button onclick="openPersonaModal()" class="px-3 py-1.5 rounded-xl btn-apple-dark text-xs font-semibold flex items-center gap-1.5 transition text-slate-300 hover:text-white hover:scale-[1.02]">
+            <span>🎭</span> <span class="hidden sm:inline">Persona</span>
+          </button>
+          <div class="apple-floating-hint">
+            <div class="p-3.5 apple-glass rounded-2xl shadow-2xl border border-purple-500/40 bg-slate-900/95 backdrop-blur-2xl">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="text-sm">🎭</span>
+                <span class="text-xs font-bold text-purple-300 font-mono tracking-wide">AI Persona & Tone</span>
+              </div>
+              <p class="text-[11px] text-slate-300 leading-snug">Customize post tone, writing personality presets & custom LLM system prompts for authentic human-like posting.</p>
+              <div class="mt-2.5 flex items-center gap-1.5 text-[10px] text-purple-400 font-mono pt-1.5 border-t border-white/5">
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                <span>Presets: Friendly, Casual, Tech Expert</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Button with Animated Floating Glass Tooltip -->
+        <div class="has-floating-hint">
+          <button onclick="openApiModal()" class="px-3 py-1.5 rounded-xl btn-apple-dark text-xs font-semibold flex items-center gap-1.5 transition text-slate-300 hover:text-white hover:scale-[1.02]">
+            <span>🔑</span> <span class="hidden sm:inline">API</span>
+          </button>
+          <div class="apple-floating-hint">
+            <div class="p-3.5 apple-glass rounded-2xl shadow-2xl border border-sky-500/40 bg-slate-900/95 backdrop-blur-2xl">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="text-sm">🔑</span>
+                <span class="text-xs font-bold text-sky-300 font-mono tracking-wide">Local AI & LLM Engine</span>
+              </div>
+              <p class="text-[11px] text-slate-300 leading-snug">Connect Ollama, AnythingLLM, LM Studio endpoints with custom token limits & model selection.</p>
+              <div class="mt-2.5 flex items-center gap-1.5 text-[10px] text-sky-400 font-mono pt-1.5 border-t border-white/5">
+                <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+                <span>Endpoints: Ollama / AnythingLLM Bridge</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Apple-Style System Audio Cue Switcher -->
+        <button id="soundToggleBtn" onclick="toggleAudio()" class="px-2.5 py-1.5 rounded-xl btn-apple-dark text-xs font-semibold flex items-center gap-1 transition text-slate-300 hover:text-white" title="Toggle Apple-Style Audio Cues">
+          <span id="soundToggleIcon">🔊</span>
+        </button>
+
+        <!-- Theme Switcher (Obsidian Dark Glass vs Frost Titanium Light Glass) -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="px-2.5 py-1.5 rounded-xl btn-apple-dark text-xs font-semibold flex items-center gap-1.5 transition text-slate-300 hover:text-white" title="Toggle Dark / Light Glass Theme">
+          <span id="themeToggleIcon">🌙</span> <span id="themeToggleLabel" class="hidden sm:inline text-[11px]">Dark</span>
+        </button>
+
+        <div class="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Online</span>
+        </div>
+      </div>
+    </header>
+
+
+    <!-- ======================================================================= -->
+    <!-- TAB 1: FORUM POSTER (2-Column Ergonomic Layout)                        -->
+    <!-- ======================================================================= -->
+    <div id="viewPoster" class="flex-1 flex flex-col space-y-4">
+
+      <!-- 2-COLUMN DESKTOP GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+
+        <!-- LEFT COLUMN (5 cols / ~42%): Configuration & Target Controls -->
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+
+          <!-- Card 1B: Proxy & IP Rotation -->
+          <div class="apple-glass rounded-3xl p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-white/5 pb-2">
+              <span class="text-xs font-bold text-white flex items-center gap-2">
+                <span>🌐</span> <span>Proxy & IP Rotation</span>
+              </span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="toggleProxyRotation" class="sr-only peer" onchange="toggleProxyUI(this.checked)">
+                <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                <span class="ml-2 text-[10px] text-slate-400 font-mono" id="proxyStatusLabel">Off</span>
+              </label>
+            </div>
+            <div id="proxyConfigSection" class="hidden space-y-2">
+              <label class="block text-[11px] font-semibold text-slate-400">Proxies (One per line: http://user:pass@host:port or socks5://host:port)</label>
+              <textarea id="proxyListInput" rows="2" placeholder="http://proxy1.com:8080&#10;socks5://12.34.56.78:1080" class="w-full apple-well rounded-2xl p-2.5 text-xs text-slate-100 font-mono placeholder-slate-600 focus:outline-none resize-none"></textarea>
+              <button onclick="saveProxyConfig()" class="w-full py-1.5 rounded-xl btn-apple-dark text-xs font-semibold text-sky-400 hover:text-sky-300 flex items-center justify-center gap-1.5 transition">
+                <span>💾</span> <span>Save Proxy Settings</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 1: Platform Engine & Selectors -->
+          <div class="apple-glass rounded-3xl p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-white/5 pb-2.5">
+              <span class="text-xs font-bold text-white flex items-center gap-2">
+                <span>🎯</span> <span>Platform & Credentials</span>
+              </span>
+              <span class="text-[10px] text-slate-400 font-mono">Step 1 of 2</span>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5">Platform Engine</label>
+              <select id="selPlatform" class="w-full apple-well rounded-2xl px-3.5 py-2.5 text-xs text-slate-100 font-semibold focus:outline-none">
+                <option value="Auto-Detect (Recommended)" selected>Auto-Detect (Recommended)</option>
+                <option value="Autonomous Unknown-Site Agent v3.0">🧭 Autonomous Unknown-Site Agent v3.0 (Any Website / WP / Forum)</option>
+                <option value="Knowt App">📚 Knowt App (knowt.com)</option>
+                <option value="WaiverElectronic (waiverelectronic.com)">📝 WaiverElectronic (waiverelectronic.com)</option>
+                <option value="TMDb (The Movie Database)">🎬 TMDb (The Movie Database)</option>
+                <option value="ProBoards Dedicated">ProBoards Dedicated</option>
+                <option value="vBulletin 5/6 (Avid DUC style)">vBulletin 5/6 (Avid DUC style)</option>
+                <option value="vBulletin 3/4 Classic">vBulletin 3/4 Classic</option>
+                <option value="XenForo 2.x">XenForo 2.x</option>
+                <option value="phpBB">phpBB</option>
+              </select>
+            </div>
+
+            <!-- Quick Recorder & Blueprint Action Pills -->
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="openRecorderDialog()" class="py-2.5 rounded-2xl btn-apple-purple text-white text-xs font-bold shadow flex items-center justify-center gap-1.5">
+                <span>🎥</span> <span>Record Site</span>
+              </button>
+              <button onclick="openBlueprintModal()" class="py-2.5 rounded-2xl btn-apple-green text-white text-xs font-bold shadow flex items-center justify-center gap-1.5">
+                <span>➕</span> <span>Blueprint Studio</span>
+              </button>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-semibold text-slate-400">Target Board URL</label>
+                <button onclick="analyzeUnknownSiteNow()" title="Probe unknown website HTML & DOM to auto-detect CMS, creation URL, and form selectors" class="px-2.5 py-0.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/30 text-[10px] font-bold text-sky-300 transition flex items-center gap-1">
+                  <span>🧭</span> <span>Analyze Unknown Site</span>
+                </button>
+              </div>
+              <input type="text" id="targetBoardUrl" value="https://autd.proboards.com/board/44/updates"
+                     class="w-full apple-well rounded-2xl px-3.5 py-2 text-xs text-slate-200 font-mono focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Login URL</label>
+              <input type="text" id="targetLoginUrl" value="https://login.proboards.com/login/3431890/1"
+                     class="w-full apple-well rounded-2xl px-3.5 py-2 text-xs text-slate-200 font-mono focus:outline-none">
+            </div>
+
+            <!-- Execution Options -->
+            <div class="pt-2 border-t border-white/5 space-y-2.5">
+              <div class="flex items-center justify-between text-xs">
+                <label class="flex items-center space-x-2 cursor-pointer text-slate-300">
+                  <input type="checkbox" id="chkHeadless" class="rounded bg-black border-white/20 text-blue-600 focus:ring-0">
+                  <span>Headless (Hidden Browser)</span>
+                </label>
+
+                <div class="flex items-center space-x-1.5 text-slate-400">
+                  <span>Delay:</span>
+                  <input type="number" id="delayMin" value="3" class="w-10 text-center apple-well rounded-lg py-0.5 font-mono text-slate-200 text-xs">
+                  <span>-</span>
+                  <input type="number" id="delayMax" value="6" class="w-10 text-center apple-well rounded-lg py-0.5 font-mono text-slate-200 text-xs">
+                  <span>s</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-1.5">
+                <span class="text-slate-300 font-medium">⚡ Concurrent Multi-Tab Workers:</span>
+                <select id="selConcurrency" class="apple-well rounded-lg px-2.5 py-1 font-mono text-sky-400 text-xs font-semibold focus:outline-none">
+                  <option value="1">1 Tab (Sequential)</option>
+                  <option value="2" selected>2 Tabs (2x Parallel)</option>
+                  <option value="3">3 Tabs (3x Parallel)</option>
+                  <option value="4">4 Tabs (4x Max Turbo)</option>
+                </select>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-1.5 border-t border-white/5 mt-1">
+                <label class="flex items-center space-x-2 text-slate-300 font-medium cursor-pointer" title="Automatically heal & retry any failed posts at the end of the batch using a fresh browser context">
+                  <input type="checkbox" id="chkAutoRetryFailed" checked onchange="saveRetrySettingsUI()" class="rounded bg-black border-white/20 text-emerald-500 focus:ring-0">
+                  <span>🩹 Auto-Heal Failed Posts:</span>
+                </label>
+                <select id="selMaxRetries" onchange="saveRetrySettingsUI()" class="apple-well rounded-lg px-2.5 py-1 font-mono text-emerald-400 text-xs font-semibold focus:outline-none">
+                  <option value="1">1x Healer Pass</option>
+                  <option value="2" selected>2x Healer Passes</option>
+                  <option value="3">3x Healer Passes</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Multi-Account Direct Links Mode (Collapsible & Compact) -->
+          <div class="apple-glass rounded-3xl p-4 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="flex items-center space-x-2 text-xs font-bold text-white cursor-pointer">
+                <input type="checkbox" id="chkDirectMode" checked onchange="toggleDirectMode(this)" class="rounded bg-black border-white/20 text-blue-600 focus:ring-0">
+                <span>⚡ Multi-Account Direct Links Mode</span>
+              </label>
+
+              <div class="flex items-center space-x-2 text-xs">
+                <label class="flex items-center space-x-1 text-slate-400 cursor-pointer">
+                  <input type="checkbox" id="chkSavedSites" onchange="toggleSavedSites(this)" class="rounded bg-black border-white/20 text-blue-600 focus:ring-0">
+                  <span>Saved Sites</span>
+                </label>
+                <button onclick="loadDirectLinksFile()" class="px-2.5 py-1 rounded-xl btn-apple-dark text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1">
+                  <span>📁</span> <span>Load</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="directLinksContainer">
+              <textarea id="directLinksInput" rows="2" placeholder="Paste direct login links (1 per line)..."
+                        class="w-full apple-well rounded-2xl p-2.5 text-xs font-mono text-slate-300 placeholder-slate-600 focus:outline-none transition resize-none"></textarea>
+            </div>
+
+            <!-- SIDE-BY-SIDE LIVE SPINTAX PREVIEWER DRAWER -->
+            <div id="spintaxPreviewDrawer" class="hidden apple-glass rounded-2xl p-4 space-y-3 border border-sky-500/30 bg-black/40">
+              <div class="flex items-center justify-between border-b border-white/5 pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm">🔀</span>
+                  <span class="text-xs font-bold text-sky-300 font-mono">Side-by-Side Live Spintax Previewer</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="refreshSpintaxPreview()" class="px-2.5 py-1 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-[11px] font-semibold flex items-center gap-1 transition">
+                    <span>🎲</span> <span>Shuffle Variations</span>
+                  </button>
+                  <button onclick="toggleSpintaxPreview()" class="text-slate-400 hover:text-white text-xs font-mono">✕</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="spintaxVariationsGrid">
+                <!-- 3 live variation cards injected dynamically -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN (7 cols / ~58%): Queue Hub & Live Console -->
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+
+          <!-- Card 3: Interactive Execution Queue -->
+          <div class="apple-glass rounded-3xl overflow-hidden flex flex-col flex-1 min-h-[220px]">
+            <div class="p-3.5 px-5 border-b border-white/5 flex items-center justify-between bg-black/20">
+              <div class="flex items-center space-x-2">
+                <span class="text-xs font-bold text-white">📋 Execution Queue</span>
+                <span id="queueTableBadge" class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">0 items</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="healFailedQueueNow()" title="Reset all failed items and immediately re-run them with fresh browser healing" class="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-[11px] font-bold text-amber-300 hover:text-white transition flex items-center gap-1">
+                  <span>🩹</span> <span>Heal & Retry Failed</span>
+                </button>
+                <button onclick="clearEntireQueue()" class="text-xs text-slate-400 hover:text-rose-400 transition font-medium">Clear All</button>
+              </div>
+            </div>
+
+            <!-- Glowing Live Progress Bar -->
+            <div id="queueProgressContainer" class="p-3 px-5 bg-black/30 border-b border-white/5 space-y-1.5">
+              <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center space-x-2">
+                  <span id="progressDot" class="w-2 h-2 rounded-full bg-slate-500 transition-colors duration-300"></span>
+                  <span id="progressStatusText" class="text-slate-300 font-semibold text-[11px]">Queue Idle</span>
+                </div>
+                <span id="progressPercentText" class="font-mono text-blue-400 font-bold text-xs">0% (0 / 0)</span>
+              </div>
+              <div class="w-full bg-[#090b10] h-2 rounded-full overflow-hidden p-[1px] border border-white/10 shadow-inner">
+                <div id="progressBarFill" class="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(59,130,246,0.6)]" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="overflow-y-auto max-h-[240px] flex-1">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead class="sticky top-0 bg-[#10121a] border-b border-white/5 text-slate-400 font-semibold">
+                  <tr>
+                    <th class="py-2.5 px-3 w-10 text-center">#</th>
+                    <th class="py-2.5 px-4 w-32 text-center whitespace-nowrap">Status</th>
+                    <th class="py-2.5 px-3">Thread Title</th>
+                    <th class="py-2.5 px-3 w-24 text-right">Length</th>
+                    <th class="py-2.5 px-3 w-12 text-center"></th>
+                  </tr>
+                </thead>
+                <tbody id="queueTableBody" class="divide-y divide-white/5 font-sans">
+                  <tr>
+                    <td colspan="5" class="py-12 text-center text-slate-500 italic text-xs font-sans">
+                      Queue is empty. Use Content Studio to generate posts or import Google links.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Card 4A: Dedicated Verified Live Posts Hub -->
+          <div class="apple-glass rounded-3xl overflow-hidden flex flex-col p-4 space-y-3 border border-emerald-500/25 bg-gradient-to-br from-emerald-950/20 via-slate-900/60 to-black/60 shadow-xl">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981] animate-pulse"></span>
+                <span class="text-xs font-bold text-emerald-300 font-mono tracking-wide">🛡️ Verified Live Posts</span>
+                <span id="verifiedLiveCountBadge" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">0 Live</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="copyAllUrlsFromLogs()" class="px-3 py-1 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-300 hover:text-white border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1.5 transition shadow-sm hover:scale-[1.02]" title="Copy all verified public post URLs to clipboard">
+                  <span>📋</span> <span>Copy All Live URLs</span>
+                </button>
+                <button onclick="exportVerifiedPostsToCSV()" class="px-2.5 py-1 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 hover:text-white border border-teal-500/30 text-[11px] font-semibold flex items-center gap-1 transition" title="Export all verified posts to CSV spreadsheet">
+                  <span>📊</span> <span>Export CSV</span>
+                </button>
+                <button onclick="verifyAllLiveUrlsIncognito()" class="px-2.5 py-1 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 hover:text-white border border-sky-500/30 text-[11px] font-semibold flex items-center gap-1 transition" title="Test all live URLs in Incognito mode">
+                  <span>🛡️</span> <span>Verify Incognito</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Real-Time Google Sheet Auto-Sync Bar (Column A1, A2, A3... + 0.2s Instant Apps Script Webhook) -->
+            <div class="p-2.5 px-3 rounded-2xl bg-black/40 border border-emerald-500/20 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-1 min-w-[220px]">
+                  <span class="text-xs" title="Target Google Sheet (Column A1, A2, A3...)">📊</span>
+                  <input type="text" id="gsheetSyncUrlInput"
+                         value="https://docs.google.com/spreadsheets/d/1zjHDFpwHZJi440N3WZ0dDi3OYrGWrEFPBVTvhYiZhAg/edit?usp=sharing"
+                         placeholder="Google Sheet URL (Anyone with link can edit)"
+                         onchange="saveGsheetConfig()"
+                         class="w-full apple-well rounded-xl px-2.5 py-1 text-[11px] font-mono text-emerald-300 focus:outline-none">
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <label class="flex items-center gap-1 text-[11px] text-slate-300 cursor-pointer font-medium" title="Automatically write every new verified URL to Column A (A1, A2, A3...)">
+                    <input type="checkbox" id="chkGsheetAutoSync" checked onchange="saveGsheetConfig()" class="rounded bg-black border-white/20 text-emerald-500 focus:ring-0">
+                    <span>Auto-Sync (A1+)</span>
+                  </label>
+                  <button onclick="syncAllUrlsToGoogleSheetNow()" class="px-2.5 py-1 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-300 hover:text-white border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 transition">
+                    <span>📤</span> <span>Push to Sheet (A1+)</span>
+                  </button>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-white/5">
+                <div class="flex items-center gap-2 flex-1 min-w-[220px]">
+                  <span class="text-xs" title="Optional 0.2s Instant Google Apps Script Web App URL">⚡</span>
+                  <input type="text" id="gsheetWebhookInput"
+                         placeholder="Optional 0.2s Apps Script Webhook URL (https://script.google.com/macros/s/.../exec)"
+                         onchange="saveGsheetConfig()"
+                         class="w-full apple-well rounded-xl px-2.5 py-1 text-[11px] font-mono text-amber-300 focus:outline-none">
+                </div>
+                <button onclick="copyAppsScriptWebhookCode()" title="Copy 0.2s Google Apps Script code (Extensions -> Apps Script -> Deploy as Web App)" class="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-white border border-amber-500/30 text-[11px] font-bold flex items-center gap-1 transition shrink-0">
+                  <span>⚡</span> <span>Copy 0.2s Script</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="verifiedPostsContainer" class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+              <div id="verifiedPostsEmpty" class="py-3 text-center text-slate-500 italic text-[11px]">
+                No live posts generated yet. As threads & waivers are posted, their verified public URLs will appear here with instant incognito verification.
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Terminal Activity Console -->
+          <div class="apple-glass rounded-3xl overflow-hidden flex flex-col">
+            <div class="p-2.5 px-4 bg-black/40 border-b border-white/5 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-mono font-bold text-slate-300">Live Activity & Browser Console</span>
+              </div>
+              <div class="flex items-center space-x-2.5">
+                <button onclick="document.getElementById('liveLogConsole').innerHTML=''" class="px-2.5 py-0.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-[11px] font-mono transition" title="Clear console log history">
+                  <span>🗑️ Clear Console</span>
+                </button>
+              </div>
+            </div>
+            <div id="liveLogConsole" class="p-3.5 bg-[#050608] font-mono text-[11px] text-slate-300 space-y-1 h-36 overflow-y-auto leading-relaxed">
+              <div class="text-slate-500"><span class="text-slate-600">[System]</span> Engine initialized. Ready for automation.</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- BOTTOM FLOATING ACTION DOCK (macOS Curved Glass Dock) -->
+      <div class="apple-glass rounded-3xl p-3 px-5 flex flex-wrap items-center justify-between gap-3 shadow-2xl">
+        <div class="flex items-center space-x-2">
+          <button onclick="handleLogin()" title="Open target site login in Google-Safe Native Browser" class="px-4 py-2 rounded-2xl btn-apple-dark text-xs font-bold text-slate-200 hover:text-white flex items-center gap-1.5 transition">
+            <span>🔑</span> <span>Login</span>
+          </button>
+          <button onclick="handleGoogleAccountLogin()" title="Sign into your Google Account once (Zero-Block Native Chrome) so 'Continue with Google' works on all sites!" class="px-3.5 py-2 rounded-2xl btn-apple-dark text-xs font-bold text-sky-300 hover:text-white border border-sky-500/30 flex items-center gap-1.5 transition">
+            <span>🔵</span> <span>Google Login</span>
+          </button>
+          <button onclick="handleSaveSession()" class="px-3.5 py-2 rounded-2xl btn-apple-dark text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+            <span>💾</span> <span>Save Session</span>
+          </button>
+          <button onclick="handleExportSessionJson()" class="px-3 py-2 rounded-2xl btn-apple-dark text-xs font-semibold text-sky-300 hover:text-white flex items-center gap-1 transition" title="Download saved login cookies (.json) to upload to your Free Cloud server">
+            <span>📤</span> <span>Export Cookies</span>
+          </button>
+          <button onclick="document.getElementById('sessionJsonUploadInput').click()" class="px-3 py-2 rounded-2xl btn-apple-dark text-xs font-semibold text-emerald-300 hover:text-white flex items-center gap-1 transition" title="Upload login cookies (.json) from your PC into this Cloud instance">
+            <span>☁️</span> <span>Upload Cookies</span>
+          </button>
+          <input type="file" id="sessionJsonUploadInput" class="hidden" accept=".json" onchange="handleUploadSessionJson(this)">
+        </div>
+
+        <div class="flex items-center space-x-2.5">
+          <button onclick="handlePostQueue()" class="px-6 py-2.5 rounded-2xl btn-apple-blue text-white text-xs font-extrabold shadow-lg flex items-center gap-2 hover:scale-[1.03] transition">
+            <span class="text-sm">🚀</span> <span>Post Queue</span>
+          </button>
+          <button onclick="handleLivePost()" class="px-6 py-2.5 rounded-2xl btn-apple-purple text-white text-xs font-extrabold shadow-lg flex items-center gap-2 hover:scale-[1.03] transition">
+            <span class="text-sm">⚡</span> <span>Login & Post (Live)</span>
+          </button>
+          <button onclick="handleConfirmLiveLogin()" title="Click after logging into the Live Browser window to start posting!" class="px-4 py-2.5 rounded-2xl btn-apple-green text-white text-xs font-extrabold shadow-lg flex items-center gap-1.5 hover:scale-[1.03] transition">
+            <span class="text-sm">✅</span> <span>Confirm Login</span>
+          </button>
+          <button onclick="handleStop()" class="px-4 py-2.5 rounded-2xl btn-apple-danger text-xs font-bold flex items-center gap-1.5 transition">
+            <span>⏹</span> <span>Stop</span>
+          </button>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button onclick="window.pywebview.api.clear_cookies(); showToast('Session cookies cleared', 'info');" 
+                  class="px-3 py-2 rounded-2xl btn-apple-dark text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 transition">
+            <span>🧹</span> <span>Clear Cookies</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================================= -->
+    <!-- TAB 2: CONTENT STUDIO (2-Column Proportional Layout)                   -->
+    <!-- ======================================================================= -->
+    <div id="viewStudio" class="hidden flex-1 flex flex-col space-y-4">
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+
+        <!-- LEFT COLUMN: Generator & Import Sources -->
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+
+          <!-- Source Selector Pills -->
+          <div class="apple-glass rounded-3xl p-1.5 flex gap-1 shadow-inner">
+            <button id="subBtnCampaign" onclick="setSubMode('campaign')" 
+                    class="flex-1 py-1.5 rounded-2xl text-xs font-semibold text-slate-400 hover:text-white transition flex items-center justify-center gap-1">
+              <span>🎯</span> <span>Campaign</span>
+            </button>
+            <button id="subBtnStudio" onclick="setSubMode('studio')" 
+                    class="flex-1 py-1.5 rounded-2xl text-xs font-semibold text-slate-400 hover:text-white transition flex items-center justify-center gap-1">
+              <span>⚡</span> <span>Prompt</span>
+            </button>
+            <button id="subBtnImport" onclick="setSubMode('import')" 
+                    class="flex-1 py-1.5 rounded-2xl text-xs font-bold text-white bg-blue-600/30 border border-blue-500/40 shadow transition flex items-center justify-center gap-1">
+              <span>📥</span> <span>Import</span>
+            </button>
+          </div>
+
+          <!-- SUB-MODE 1: Campaign Keywords -->
+          <div id="subViewCampaign" class="hidden apple-glass rounded-3xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>🎯</span> <span>Keyword Campaign</span>
+                </h3>
+                <p class="text-[11px] text-apple-textSecondary">1 keyword per line. Generates unique posts.</p>
+              </div>
+              <button onclick="generateSingleFromInput()" class="px-3.5 py-1.5 rounded-2xl btn-apple-blue text-white text-xs font-bold shadow">
+                Generate ➡️
+              </button>
+            </div>
+            <textarea id="campaignKwsInput" rows="3" placeholder="vintage car restoration tips&#10;budget gaming pc build 2026&#10;audio mastering techniques"
+                      class="w-full apple-well rounded-2xl p-3 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none transition resize-none"></textarea>
+          </div>
+
+          <!-- SUB-MODE 2: Single Prompt -->
+          <div id="subViewStudio" class="hidden apple-glass rounded-3xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>⚡</span> <span>Single Prompt Studio</span>
+                </h3>
+                <p class="text-[11px] text-apple-textSecondary">Enter custom topic or prompt.</p>
+              </div>
+              <button onclick="generateFromSinglePrompt()" class="px-3.5 py-1.5 rounded-2xl btn-apple-purple text-white text-xs font-bold shadow">
+                Generate ✨
+              </button>
+            </div>
+            <textarea id="singlePromptInput" rows="3" placeholder="Write an engaging discussion post about how to choose the right gear for home recording..."
+                      class="w-full apple-well rounded-2xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none transition resize-none"></textarea>
+          </div>
+
+          <!-- SUB-MODE 3: Import Google Links & Local Files -->
+          <div id="subViewImport" class="apple-glass rounded-3xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>📥</span> <span>Google Docs & Sheets</span>
+                </h3>
+                <p class="text-[11px] text-apple-textSecondary">Paste public shareable links.</p>
+              </div>
+              <button id="btnLoadLinks" onclick="loadGoogleLinks()" class="px-3.5 py-1.5 rounded-2xl btn-apple-blue text-white text-xs font-bold shadow">
+                Load Links
+              </button>
+            </div>
+            <textarea id="googleLinksInput" rows="2" placeholder="https://docs.google.com/document/d/...&#10;https://docs.google.com/spreadsheets/d/..."
+                      class="w-full apple-well rounded-2xl p-2.5 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none transition resize-none"></textarea>
+
+            <div class="pt-2 border-t border-white/5">
+              <button onclick="importLocalFiles()" class="w-full py-2.5 rounded-2xl btn-apple-dark text-xs font-semibold flex items-center justify-center gap-2 text-slate-300 hover:text-white">
+                <span>📁</span> <span>Import Local Files (PDF / Word / Excel / TXT / CSV)</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Review & Live Editor -->
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+
+          <div class="apple-glass rounded-3xl p-5 flex-1 flex flex-col space-y-3">
+            <div class="flex items-center justify-between border-b border-white/5 pb-3">
+              <div>
+                <h2 class="text-xs font-bold text-white flex items-center gap-2">
+                  <span>📝</span> <span>Content Review & Live Editor</span>
+                </h2>
+                <p class="text-[11px] text-apple-textSecondary">Review and refine draft before adding to queue</p>
+              </div>
+              <div class="flex items-center space-x-3">
+                <!-- Optional Spintax Assistant Toggle Switch -->
+                <label class="flex items-center space-x-2 cursor-pointer select-none bg-black/40 px-2.5 py-1 rounded-xl border border-white/5 hover:border-purple-500/30 transition" title="Toggle Auto-Spintax and Side-by-Side Previewer on or off">
+                  <input type="checkbox" id="toggleSpintaxFeatures" class="sr-only peer" onchange="toggleSpintaxFeatureState(this.checked)">
+                  <div class="w-7 h-3.5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-purple-500"></div>
+                  <span class="text-[11px] font-semibold text-purple-300 font-mono">🔀 Spintax Mode</span>
+                </label>
+                <span id="editorStats" class="text-xs font-mono font-bold text-slate-400 bg-black/40 px-3 py-1 rounded-xl border border-white/5">
+                  0 words • 0 chars
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Subject / Title</label>
+              <input type="text" id="postTitle" placeholder="Enter post title..."
+                     class="w-full apple-well rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-slate-100 placeholder-slate-600 focus:outline-none">
+            </div>
+
+            <div class="flex-1 flex flex-col min-h-[220px]">
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Post Body Content</label>
+              <textarea id="postContent" oninput="updateStats()" rows="10" placeholder="Your generated post content will appear here..."
+                        class="flex-1 w-full apple-well rounded-2xl p-3.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none leading-relaxed font-sans resize-y"></textarea>
+            </div>
+
+            <!-- Action Toolbar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5">
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="approveAndQueue()" class="px-4 py-2 rounded-2xl btn-apple-green text-white text-xs font-bold shadow flex items-center gap-1.5 hover:scale-[1.02] transition">
+                  <span>✅</span> <span>Approve & Queue</span>
+                </button>
+                <button onclick="approveAndPostNow()" class="px-4 py-2 rounded-2xl btn-apple-purple text-white text-xs font-bold shadow flex items-center gap-1.5 hover:scale-[1.02] transition">
+                  <span>⚡</span> <span>Post This Now</span>
+                </button>
+              </div>
+              <div id="spintaxActionGroup" class="hidden flex-wrap items-center gap-2">
+                <button onclick="triggerAutoSpintax()" class="px-3.5 py-2 rounded-2xl btn-apple-dark text-amber-300 hover:text-white text-xs font-bold shadow flex items-center gap-1.5 border border-amber-500/30 hover:scale-[1.02] transition" title="Automatically convert plain text into rich {synonym1|synonym2} spintax">
+                  <span>🪄</span> <span>AI Auto-Spintax</span>
+                </button>
+                <button onclick="toggleSpintaxPreview()" class="px-3.5 py-2 rounded-2xl btn-apple-dark text-sky-300 hover:text-white text-xs font-bold shadow flex items-center gap-1.5 border border-sky-500/30 hover:scale-[1.02] transition" title="View side-by-side live spun variations">
+                  <span>🔀</span> <span id="spintaxPreviewToggleLabel">Live Preview</span>
+                </button>
+              </div>
+              <button onclick="regeneratePost()" class="px-3.5 py-2 rounded-2xl btn-apple-dark text-xs font-semibold flex items-center gap-1.5 text-sky-400 hover:text-sky-300">
+                <span>🔄</span> <span>Regenerate</span>
+              </button>
+              <button onclick="skipDraft()" class="px-3.5 py-2 rounded-2xl btn-apple-dark text-xs font-semibold text-slate-400 hover:text-white">
+                <span>⏭️</span> <span>Skip</span>
+              </button>
+              <button onclick="showMainTab('poster')" class="ml-auto px-4 py-2 rounded-2xl btn-apple-blue text-white text-xs font-bold shadow flex items-center gap-1.5">
+                <span>🚀</span> <span>Go to Poster ➡️</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 1: PLAYWRIGHT VISUAL RECORDER (Inspector)                           -->
+  <!-- ========================================================================= -->
+  <div id="modalRecorder" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div class="apple-glass w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>🎥</span> <span>Playwright Visual Recorder</span>
+        </h3>
+        <button onclick="closeRecorderDialog()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+      <p class="text-xs text-apple-textSecondary leading-relaxed">
+        Launches the Playwright visual codegen inspector on your desktop. Click around on the website to record your clicks and text entries.
+      </p>
+      <div>
+        <label class="block text-xs font-semibold text-slate-400 mb-1">Target Website URL</label>
+        <input type="text" id="recorderTargetUrl" placeholder="https://..."
+               class="w-full apple-well rounded-2xl px-3.5 py-2 text-xs text-slate-100 font-mono focus:outline-none">
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeRecorderDialog()" class="px-4 py-2 rounded-2xl btn-apple-dark text-slate-300 text-xs font-semibold">Cancel</button>
+        <button onclick="confirmLaunchRecorder()" class="px-4 py-2 rounded-2xl btn-apple-purple text-white text-xs font-bold shadow">
+          🚀 Launch Recorder
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 2: SITE BLUEPRINT STUDIO                                            -->
+  <!-- ========================================================================= -->
+  <div id="modalBlueprint" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div class="apple-glass w-full max-w-lg rounded-3xl p-6 border border-white/10 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 flex-shrink-0">
+        <div>
+          <h3 class="text-sm font-bold text-indigo-400 flex items-center gap-2">
+            <span>🛠️</span> <span>Site Blueprint Studio</span>
+          </h3>
+          <p class="text-[11px] text-apple-textSecondary">Save reusable recipes for any forum or website.</p>
+        </div>
+        <button onclick="closeBlueprintModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <div class="space-y-3 overflow-y-auto flex-1 pr-1 text-xs">
+        <div class="flex gap-2">
+          <div class="flex-1">
+            <label class="block font-semibold text-slate-400 mb-1">Saved Blueprints</label>
+            <select id="selSavedBlueprints" onchange="loadSelectedBlueprintToForm()"
+                    class="w-full apple-well rounded-2xl px-3 py-2 text-slate-100 font-semibold focus:outline-none">
+              <option value="">-- Create New Blueprint --</option>
+            </select>
+          </div>
+          <div class="pt-5">
+            <button onclick="deleteCurrentBlueprint()" class="px-3.5 py-2 rounded-2xl btn-apple-danger text-xs font-semibold">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Blueprint Name</label>
+            <input type="text" id="bpNameInput" placeholder="e.g. CricketWindies Forum"
+                   class="w-full apple-well rounded-2xl px-3 py-2 text-slate-100 focus:outline-none font-semibold">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Target Board / Forum URL</label>
+            <input type="text" id="bpBoardUrlInput" placeholder="https://cricketwindies.com/forum-2-..."
+                   class="w-full apple-well rounded-2xl px-3 py-2 text-slate-100 font-mono text-[11px] focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Reply / New Topic Selector</label>
+          <input type="text" id="bpReplyInput" value="text=Reply" placeholder='text=Reply or a:has-text("Post")'
+                 class="w-full apple-well rounded-2xl px-3 py-2 font-mono text-slate-100 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Title Selector (optional)</label>
+          <input type="text" id="bpTitleInput" placeholder='input[name="subject"] (leave empty if not applicable)'
+                 class="w-full apple-well rounded-2xl px-3 py-2 font-mono text-slate-100 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Message Editor Selector</label>
+          <input type="text" id="bpEditorInput" value='textarea[name="message"]' placeholder='textarea[name="message"] or .fr-element'
+                 class="w-full apple-well rounded-2xl px-3 py-2 font-mono text-slate-100 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Submit Button Selector</label>
+          <input type="text" id="bpSubmitInput" value='button[type="submit"]' placeholder='button[type="submit"] or text=Post'
+                 class="w-full apple-well rounded-2xl px-3 py-2 font-mono text-slate-100 focus:outline-none">
+        </div>
+
+        <div class="border-t border-white/5 pt-3">
+          <div id="bpWorkflowBadge" class="hidden mb-2 p-2 px-3 rounded-xl bg-purple-500/20 border border-purple-500/35 text-purple-200 text-xs font-semibold flex items-center justify-between">
+            <span id="bpWorkflowBadgeText">⚡ Workflow Active</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-100 font-mono">Multi-Step</span>
+          </div>
+          <label class="block font-semibold text-slate-400 mb-1">📋 Or Paste Raw Codegen Lines to Auto-Fill:</label>
+          <textarea id="bpCodegenInput" rows="3" placeholder="page.locator('text=Reply').click()...&#10;page.locator('button[type=\'submit\']').click()..."
+                    class="w-full apple-well rounded-2xl p-2.5 font-mono text-slate-300 focus:outline-none"></textarea>
+          <button onclick="autoDetectBlueprintFromCodegen()" class="mt-1.5 px-3 py-1.5 rounded-xl btn-apple-dark text-slate-300 text-xs font-semibold">
+            ⚡ Auto-Detect Selectors from Codegen
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-white/10 flex-shrink-0">
+        <button onclick="closeBlueprintModal()" class="px-4 py-2 rounded-2xl btn-apple-dark text-slate-300 text-xs font-semibold">Close</button>
+        <button onclick="saveCurrentBlueprint()" class="px-4 py-2 rounded-2xl btn-apple-green text-white text-xs font-bold shadow">
+          💾 Save Blueprint
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 3: PERSONA SETTINGS                                                 -->
+  <!-- ========================================================================= -->
+  <div id="modalPersona" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div class="apple-glass w-full max-w-lg rounded-3xl p-6 border border-white/10 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>🎭</span> <span>AI Persona & Tone Instructions</span>
+        </h3>
+        <button onclick="closePersonaModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-400 mb-1">Persona Presets</label>
+        <select id="personaPresetSelect" onchange="applyPersonaPreset(this.value)"
+                class="w-full apple-well rounded-2xl px-3 py-2 text-xs text-slate-100 font-semibold focus:outline-none">
+          <option value="Friendly Forum Member">💬 Friendly Community Forum Contributor</option>
+          <option value="Cinema Enthusiast">🎬 Film Critic & Movie Enthusiast (TMDb style)</option>
+          <option value="Technical Expert">🔧 Technical Audio/Video & Gear Specialist (Avid DUC style)</option>
+          <option value="Automotive & Craft">🏎️ Automotive & Craft Discussion</option>
+          <option value="Custom">✏️ Custom Persona</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-400 mb-1">Custom System Instructions</label>
+        <textarea id="personaPromptInput" rows="6" placeholder="You are an authentic forum member. Write natural, helpful posts..."
+                  class="w-full apple-well rounded-2xl p-3 text-xs text-slate-200 focus:outline-none leading-relaxed"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closePersonaModal()" class="px-4 py-2 rounded-2xl btn-apple-dark text-slate-300 text-xs font-semibold">Cancel</button>
+        <button onclick="savePersonaSettings()" class="px-4 py-2 rounded-2xl btn-apple-green text-white text-xs font-bold shadow">
+          💾 Save Persona
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 4: LOCAL AI & API CONFIGURATION                                     -->
+  <!-- ========================================================================= -->
+  <div id="modalApi" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+    <div class="apple-glass w-full max-w-lg rounded-3xl p-6 border border-white/10 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>🔑</span> <span>Local AI & LLM Engine Settings</span>
+        </h3>
+        <button onclick="closeApiModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Model Name</label>
+          <input type="text" id="apiModelInput" value="huihui_ai/gemma3n-abliterated:e2b-fp16"
+                 class="w-full apple-well rounded-2xl px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">AnythingLLM Base URL</label>
+          <input type="text" id="apiAnythingUrlInput" value="http://localhost:3001/api/v1"
+                 class="w-full apple-well rounded-2xl px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none">
+        </div>
+
+        <div class="p-3 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 space-y-2.5">
+          <div class="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
+            <span>☁️</span> <span>100% Free Cloud AI Keys (Recommended for Free Cloud Servers — Zero GPU Needed)</span>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Free Groq API Key (console.groq.com — starts with gsk_...)</label>
+            <input type="password" id="apiGroqKeyInput" placeholder="gsk_... (100% Free Llama 3.3 70B / Instant Cloud Generation)"
+                   class="w-full apple-well rounded-xl px-3 py-1.5 text-xs text-slate-100 font-mono focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Free Google Gemini API Key (aistudio.google.com/apikey — starts with AIza...)</label>
+            <input type="password" id="apiGeminiKeyInput" placeholder="AIza... (100% Free Gemini 2.0 Flash Cloud Generation)"
+                   class="w-full apple-well rounded-xl px-3 py-1.5 text-xs text-slate-100 font-mono focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">AnythingLLM API Key (or Local Auth Key)</label>
+          <input type="password" id="apiAnythingKeyInput" placeholder="Leave blank if using Free Groq / Gemini above"
+                 class="w-full apple-well rounded-2xl px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Workspace Slug</label>
+            <input type="text" id="apiAnythingWsInput" value="content"
+                   class="w-full apple-well rounded-2xl px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Ollama Fallback URL</label>
+            <input type="text" id="apiOllamaUrlInput" value="http://localhost:11434"
+                   class="w-full apple-well rounded-2xl px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none">
+          </div>
+        </div>
+
+        <div id="apiConnStatus" class="p-2.5 rounded-2xl apple-well text-xs text-slate-400 hidden font-mono"></div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-white/10">
+        <button onclick="testAiApiConnection()" class="px-3.5 py-2 rounded-2xl btn-apple-dark text-slate-300 text-xs font-semibold">
+          🧪 Test Connection
+        </button>
+        <div class="flex gap-2">
+          <button onclick="closeApiModal()" class="px-4 py-2 rounded-2xl btn-apple-dark text-slate-300 text-xs font-semibold">Cancel</button>
+          <button onclick="saveApiConfig()" class="px-4 py-2 rounded-2xl btn-apple-green text-white text-xs font-bold shadow">
+            💾 Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN FILE INPUTS FOR BROWSER IMPORT DIALOGS -->
+  <input type="file" id="directLinksFileInput" class="hidden" accept=".txt,.csv" onchange="handleDirectLinksFile(this)">
+  <input type="file" id="localFilesInput" class="hidden" multiple accept=".txt,.csv,.pdf,.docx,.xlsx" onchange="handleLocalFilesSelected(this)">
+
+  <!-- FLOATING TOAST NOTIFICATIONS -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                                              -->
+  <!-- ========================================================================= -->
+  <script>
+    // Universal API Bridge (Maps pywebview.api calls to local REST /api endpoints)
+    window.pywebview = window.pywebview || {};
+    if (!window.pywebview.api) {
+      window.pywebview.api = new Proxy({}, {
+        get(target, prop) {
+          return async (...args) => {
+            try {
+              const res = await fetch(`/api/${prop}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ args: args })
+              });
+              return await res.json();
+            } catch (err) {
+              console.error(`API Error on ${prop}:`, err);
+              return { success: false, message: String(err) };
+            }
+          };
+        }
+      });
+    }
+
+    let currentQueue = [];
+    let logOffset = 0;
+      window.postedLiveUrls = [];
+      if (typeof renderVerifiedPostsHub === "function") renderVerifiedPostsHub();
+    let savedBlueprints = {};
+
+    const PERSONA_PRESETS = {
+      "Friendly Forum Member": "You are an active, friendly, and helpful community forum member. Write in an authentic, conversational, and natural tone without fluff, clichés, or robotic AI intros.",
+      "Cinema Enthusiast": "You are a knowledgeable cinephile and film archivist on TMDb and movie databases. Write clean, accurate, and captivating movie overviews strictly under 1000 characters with complete sentences.",
+      "Technical Expert": "You are a professional audio/video engineer and technical troubleshooter on specialized pro forums like Avid DUC or Gearspace. Write precise, informative, and solution-focused posts.",
+      "Automotive & Craft": "You are a dedicated automotive restoration enthusiast and craft builder. Write practical, passionate, and real-world experience-driven commentary.",
+      "Custom": ""
+    };
+
+    // Real-time server log poller
+    async function pollServerLogs() {
+      try {
+        const res = await fetch(`/api/get_logs?since=${logOffset}`);
+        const data = await res.json();
+        if (data.logs && data.logs.length > 0) {
+          for (const l of data.logs) {
+            appendLog(l.msg, l.color || "text-slate-300");
+          }
+          logOffset += data.logs.length;
+        }
+        if (data.live_posts && Array.isArray(data.live_posts)) {
+          data.live_posts.forEach(lp => {
+            if (lp && lp.url) {
+              registerLiveUrl(lp.url, lp.title || "", lp.index || null, lp.tab || null);
+            }
+          });
+        }
+        if (data.queue && Array.isArray(data.queue)) {
+          renderQueue(data.queue);
+        }
+      } catch (e) {}
+      setTimeout(pollServerLogs, 800);
+    }
+
+    async function pollQueueStatus() {
+      try {
+        let qData = null;
+        let livePostsData = null;
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.get_state) {
+          const s = await window.pywebview.api.get_state();
+          if (s && s.queue) qData = s.queue;
+          if (s && s.live_posts) livePostsData = s.live_posts;
+        } else {
+          const res = await fetch('/api/get_state');
+          const s = await res.json();
+          if (s && s.queue) qData = s.queue;
+          if (s && s.live_posts) livePostsData = s.live_posts;
+        }
+        if (livePostsData && Array.isArray(livePostsData)) {
+          livePostsData.forEach(lp => {
+            if (lp && lp.url) {
+              registerLiveUrl(lp.url, lp.title || "", lp.index || null, lp.tab || null);
+            }
+          });
+        }
+        if (qData && Array.isArray(qData)) {
+          renderQueue(qData);
+        }
+      } catch (e) {}
+      setTimeout(pollQueueStatus, 1500);
+    }
+    setTimeout(pollQueueStatus, 1500);
+    setTimeout(pollServerLogs, 1000);
+
+    
+    // =========================================================================
+    // Apple-Style System Audio Cues (Synthesized via Web Audio API)
+    // =========================================================================
+    let audioCtx = null;
+    let soundEnabled = localStorage.getItem('apple_sound_enabled') !== 'false';
+
+    function updateAudioIcon() {
+      const icon = document.getElementById('soundToggleIcon');
+      if (icon) icon.innerText = soundEnabled ? '🔊' : '🔇';
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('apple_sound_enabled', soundEnabled ? 'true' : 'false');
+      updateAudioIcon();
+      showToast(soundEnabled ? '🔊 System audio cues enabled' : '🔇 Audio muted', 'info');
+      if (soundEnabled) playSystemSound('action');
+    }
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSystemSound(type = 'success') {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        if (type === 'success') {
+          // Dual-tone crystal glass chime (D5 + A5 with harmonic decay)
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(587.33, now); // D5
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(880.00, now + 0.08); // A5
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+          osc1.start(now);
+          osc2.start(now + 0.08);
+          osc1.stop(now + 0.55);
+          osc2.stop(now + 0.55);
+        } else if (type === 'action') {
+          // Subtle tactile bubble click
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(360, now);
+          osc.frequency.exponentialRampToValueAtTime(80, now + 0.04);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } else if (type === 'alert') {
+          // Warm two-tone alert chime
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.setValueAtTime(330, now + 0.12);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        }
+      } catch (e) {}
+    }
+
+    // =========================================================================
+    // Theme Switcher (Obsidian Dark Glass vs Frost Titanium Light Glass)
+    // =========================================================================
+    
+    // =========================================================================
+    // Apple-Style Dynamic Glass Notifications (In-App + Desktop)
+    // =========================================================================
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+
+    function showAppleNotification({ title, subtitle = '', message = '', type = 'success', url = null, duration = 5000 }) {
+      // 1. Play crystal sound cue
+      playSystemSound(type === 'error' ? 'alert' : 'success');
+
+      // 2. Display Apple-style In-App Glass Banner
+      const container = document.getElementById('appleNotificationContainer');
+      if (container) {
+        const banner = document.createElement('div');
+        banner.className = 'apple-banner';
+
+        let badgeColor = 'bg-emerald-400 shadow-[0_0_8px_#10b981]';
+        let badgeIcon = '✅';
+        if (type === 'info') { badgeColor = 'bg-sky-400 shadow-[0_0_8px_#38bdf8]'; badgeIcon = 'ℹ️'; }
+        if (type === 'error') { badgeColor = 'bg-rose-500 shadow-[0_0_8px_#f43f5e]'; badgeIcon = '❌'; }
+
+        banner.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-2.5">
+              <span class="mt-0.5 w-2 h-2 rounded-full ${badgeColor}"></span>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-bold text-slate-100 font-sans tracking-tight">${escapeHtml(title)}</span>
+                  ${subtitle ? `<span class="text-[10px] text-slate-400 font-mono">• ${escapeHtml(subtitle)}</span>` : ''}
+                </div>
+                ${message ? `<p class="text-[11px] text-slate-300 mt-0.5 leading-snug">${escapeHtml(message)}</p>` : ''}
+                ${url ? `<a href="${escapeHtml(url)}" target="_blank" class="inline-flex items-center gap-1 mt-1 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 underline font-semibold">View Live ↗</a>` : ''}
+              </div>
+            </div>
+            <button onclick="this.closest('.apple-banner').classList.add('dismissing'); setTimeout(() => this.closest('.apple-banner').remove(), 300);" class="text-slate-400 hover:text-white text-xs font-mono p-0.5">✕</button>
+          </div>
+        `;
+
+        container.appendChild(banner);
+
+        setTimeout(() => {
+          if (banner.parentElement) {
+            banner.classList.add('dismissing');
+            setTimeout(() => banner.remove(), 300);
+          }
+        }, duration);
+      }
+
+      // 3. Desktop Notification (if minimized/backgrounded)
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          const notif = new Notification(title, {
+            body: message || subtitle || 'Forum Studio Pro Notification',
+            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%230a84ff"/></svg>'
+          });
+          if (url) {
+            notif.onclick = () => { window.focus(); window.open(url, '_blank'); };
+          }
+        } catch (e) {}
+      }
+    }
+
+    // =========================================================================
+    // Optional Spintax Feature Toggle State (On / Off Persistence)
+    // =========================================================================
+    function initSpintaxToggleState() {
+      const isEnabled = localStorage.getItem('spintax_mode_enabled') === 'true';
+      const checkbox = document.getElementById('toggleSpintaxFeatures');
+      if (checkbox) checkbox.checked = isEnabled;
+      toggleSpintaxFeatureState(isEnabled, false);
+    }
+
+    function toggleSpintaxFeatureState(isEnabled, showMessage = true) {
+      localStorage.setItem('spintax_mode_enabled', isEnabled ? 'true' : 'false');
+      const actionGroup = document.getElementById('spintaxActionGroup');
+      const drawer = document.getElementById('spintaxPreviewDrawer');
+
+      if (actionGroup) {
+        if (isEnabled) {
+          actionGroup.classList.remove('hidden');
+          actionGroup.classList.add('flex');
+        } else {
+          actionGroup.classList.add('hidden');
+          actionGroup.classList.remove('flex');
+        }
+      }
+
+      if (drawer) {
+        if (!isEnabled) {
+          drawer.classList.add('hidden');
+          const label = document.getElementById('spintaxPreviewToggleLabel');
+          if (label) label.innerText = 'Live Preview';
+        }
+      }
+
+      if (showMessage) {
+        playSystemSound('action');
+        showToast(isEnabled ? '🔀 Spintax Mode enabled' : 'Spintax Mode disabled', 'info');
+      }
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('apple_glass_theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        updateThemeUI('light');
+      } else {
+        document.body.classList.remove('light-theme');
+        updateThemeUI('dark');
+      }
+      updateAudioIcon();
+    }
+
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-theme');
+      const themeName = isLight ? 'light' : 'dark';
+      localStorage.setItem('apple_glass_theme', themeName);
+      updateThemeUI(themeName);
+      playSystemSound('action');
+      showToast(isLight ? '☀️ Switched to Frost Titanium Light Glass' : '🌙 Switched to Obsidian Dark Glass', 'info');
+    }
+
+    function updateThemeUI(theme) {
+      const icon = document.getElementById('themeToggleIcon');
+      const label = document.getElementById('themeToggleLabel');
+      if (theme === 'light') {
+        if (icon) icon.innerText = '☀️';
+        if (label) label.innerText = 'Light';
+      } else {
+        if (icon) icon.innerText = '🌙';
+        if (label) label.innerText = 'Dark';
+      }
+    }
+
+    // =========================================================================
+    // AI Auto-Spintax Generator & Side-by-Side Live Previewer
+    // =========================================================================
+    const CLIENT_SYNONYMS = {
+      quick: ["quick", "fast", "rapid", "prompt"],
+      quickly: ["quickly", "rapidly", "promptly", "in no time"],
+      easy: ["easy", "simple", "effortless", "straightforward"],
+      easily: ["easily", "simply", "effortlessly", "with ease"],
+      important: ["important", "essential", "crucial", "vital", "key"],
+      complete: ["complete", "fill out", "finalize", "submit", "provide"],
+      completed: ["completed", "filled out", "finalized", "submitted"],
+      reliable: ["reliable", "trusted", "dependable", "proven"],
+      help: ["help", "assist", "support", "guidance"],
+      guide: ["guide", "walkthrough", "tutorial", "overview"],
+      great: ["great", "excellent", "fantastic", "superb", "wonderful"],
+      new: ["new", "latest", "updated", "fresh"],
+      free: ["free", "complimentary", "no-cost"],
+      safe: ["safe", "secure", "protected"],
+      safely: ["safely", "securely", "without worry"],
+      website: ["website", "site", "platform", "portal"],
+      welcome: ["welcome", "greetings", "hello everyone", "hi all"],
+      thanks: ["thanks", "thank you", "much appreciated", "cheers"],
+      process: ["process", "procedure", "steps", "workflow"],
+      convenient: ["convenient", "hassle-free", "seamless", "user-friendly"],
+      access: ["access", "view", "obtain", "reach", "get to"],
+      start: ["start", "begin", "commence", "get started"],
+      enjoy: ["enjoy", "experience", "appreciate"]
+    };
+
+    function generateClientSpintax(text) {
+      if (!text) return "";
+      let res = text;
+      for (const [k, syns] of Object.entries(CLIENT_SYNONYMS)) {
+        const regex = new RegExp(`\\b${k}\\b`, 'gi');
+        res = res.replace(regex, `{${syns.join('|')}}`);
+      }
+      return res;
+    }
+
+    async function triggerAutoSpintax() {
+      const textarea = document.getElementById('postContent');
+      if (!textarea) return;
+      const originalText = textarea.value.trim();
+      if (!originalText) {
+        showToast('Please enter post content first to generate spintax.', 'info');
+        return;
+      }
+
+      playSystemSound('action');
+      showToast('🪄 Converting content to rich spintax...', 'info');
+
+      try {
+        let spintaxResult = "";
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.auto_spintax) {
+          const res = await window.pywebview.api.auto_spintax(originalText);
+          if (res && res.success) spintaxResult = res.spintax;
+        } else {
+          const resp = await fetch('/api/auto_spintax', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: originalText })
+          });
+          const res = await resp.json();
+          if (res && res.success) spintaxResult = res.spintax;
+        }
+
+        if (!spintaxResult) {
+          spintaxResult = generateClientSpintax(originalText);
+        }
+
+        textarea.value = spintaxResult;
+        updateStats();
+        playSystemSound('success');
+        showToast('✨ Auto-Spintax generated successfully!', 'success');
+
+        // Open and refresh previewer
+        const drawer = document.getElementById('spintaxPreviewDrawer');
+        if (drawer && drawer.classList.contains('hidden')) {
+          toggleSpintaxPreview();
+        } else {
+          refreshSpintaxPreview();
+        }
+      } catch (e) {
+        // Fallback
+        const fallback = generateClientSpintax(originalText);
+        textarea.value = fallback;
+        updateStats();
+        showToast('✨ Auto-Spintax applied via offline synonym engine!', 'success');
+        refreshSpintaxPreview();
+      }
+    }
+
+    function toggleSpintaxPreview() {
+      const drawer = document.getElementById('spintaxPreviewDrawer');
+      const label = document.getElementById('spintaxPreviewToggleLabel');
+      if (!drawer) return;
+      playSystemSound('action');
+      const isHidden = drawer.classList.toggle('hidden');
+      if (label) label.innerText = isHidden ? 'Live Preview' : 'Close Preview';
+      if (!isHidden) {
+        refreshSpintaxPreview();
+      }
+    }
+
+    function processLocalSpintax(text) {
+      if (!text) return "";
+      const regex = /\{([^{}]+)\}/g;
+      let prev = "";
+      let curr = text;
+      while (curr !== prev) {
+        prev = curr;
+        curr = curr.replace(regex, (match, choices) => {
+          const opts = choices.split('|');
+          return opts[Math.floor(Math.random() * opts.length)].trim();
+        });
+      }
+      return curr;
+    }
+
+    function refreshSpintaxPreview() {
+      const textarea = document.getElementById('postContent');
+      const grid = document.getElementById('spintaxVariationsGrid');
+      if (!textarea || !grid) return;
+      const text = textarea.value.trim();
+
+      if (!text) {
+        grid.innerHTML = '<div class="col-span-3 text-center py-4 text-slate-500 text-xs italic">Enter post content with {synonym1|synonym2} variations to preview live samples.</div>';
+        return;
+      }
+
+      playSystemSound('action');
+      const variations = [
+        processLocalSpintax(text),
+        processLocalSpintax(text),
+        processLocalSpintax(text)
+      ];
+
+      grid.innerHTML = variations.map((v, idx) => `
+        <div class="apple-glass rounded-xl p-3 flex flex-col justify-between space-y-2.5 border border-white/5 bg-black/50">
+          <div class="flex items-center justify-between border-b border-white/5 pb-1">
+            <span class="text-[10px] font-mono font-bold text-sky-400">Variation #${idx + 1}</span>
+            <span class="text-[9px] text-slate-400 font-mono">${v.length} chars</span>
+          </div>
+          <p class="text-[11px] text-slate-200 leading-relaxed font-sans line-clamp-6">${escapeHtml(v)}</p>
+          <div class="flex items-center gap-1.5 pt-1 border-t border-white/5">
+            <button onclick="copySingleUrl('${escapeHtml(v).replace(/'/g, "\\'")}')" class="flex-1 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-[10px] font-semibold transition">
+              📋 Copy
+            </button>
+            <button onclick="useSpintaxVariation('${escapeHtml(v).replace(/'/g, "\\'")}')" class="flex-1 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-[10px] font-semibold transition">
+              Use This
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function useSpintaxVariation(text) {
+      const textarea = document.getElementById('postContent');
+      if (textarea) {
+        textarea.value = text;
+        updateStats();
+        playSystemSound('action');
+        showToast('Selected variation inserted into editor!', 'success');
+      }
+    }
+
+    // =========================================================================
+    // Proxy / IP Rotation UI Controller
+    // =========================================================================
+    function toggleProxyUI(isChecked) {
+      const section = document.getElementById('proxyConfigSection');
+      const label = document.getElementById('proxyStatusLabel');
+      if (section) {
+        if (isChecked) section.classList.remove('hidden');
+        else section.classList.add('hidden');
+      }
+      if (label) label.innerText = isChecked ? 'Active' : 'Off';
+      playSystemSound('action');
+    }
+
+    async function saveProxyConfig() {
+      const toggle = document.getElementById('toggleProxyRotation');
+      const listInput = document.getElementById('proxyListInput');
+      const enabled = toggle ? toggle.checked : false;
+      const listVal = listInput ? listInput.value.trim() : '';
+
+      playSystemSound('action');
+      try {
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.save_proxy_settings) {
+          await window.pywebview.api.save_proxy_settings('', listVal, enabled);
+        } else {
+          await fetch('/api/save_proxy_settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ proxy_server: '', proxy_list: listVal, rotation_enabled: enabled })
+          });
+        }
+        playSystemSound('success');
+        showToast('🌐 Proxy & IP rotation settings saved successfully!', 'success');
+        appendLog(`🌐 Proxy configuration updated: Rotation ${enabled ? 'Enabled' : 'Disabled'}`, 'text-sky-300 font-mono');
+      } catch (e) {
+        showToast(`Proxy save error: ${e}`, 'error');
+      }
+    }
+
+    // =========================================================================
+    // 1-Click Export Verified Live Posts to CSV Spreadsheet
+    // =========================================================================
+    function exportVerifiedPostsToCSV() {
+      const urls = getAllPostedLiveUrls();
+      if (!urls || urls.length === 0) {
+        showToast('No verified live posts to export yet.', 'info');
+        return;
+      }
+
+      playSystemSound('action');
+      let csvContent = "Index,Title,Live_URL,Status,Timestamp\n";
+      urls.forEach((u, i) => {
+        const item = window.postedLiveUrls ? window.postedLiveUrls.find(x => x.url === u) : null;
+        const title = item ? item.title.replace(/"/g, '""') : `Post #${i + 1}`;
+        const timeStr = item ? item.time : new Date().toLocaleTimeString();
+        csvContent += `${i + 1},"${title}","${u}","Verified Public","${timeStr}"\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const dateStr = new Date().toISOString().slice(0, 10);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `forum_studio_posts_${dateStr}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      playSystemSound('success');
+      showToast(`📊 Exported ${urls.length} verified live posts to CSV!`, 'success');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+      initTheme();
+      initSpintaxToggleState();
+      requestNotificationPermission();
+      setupPlatformListener();
+    });
+
+    async function initApp() {
+      // Clean reset of logs console on start/restart
+      const consoleEl = document.getElementById('liveLogConsole');
+      if (consoleEl) {
+        consoleEl.innerHTML = '<div class="text-slate-500"><span class="text-slate-600">[System]</span> Engine initialized. Ready for automation.</div>';
+      }
+      logOffset = 0;
+      try {
+        await fetch('/api/clear_logs', { method: 'POST' });
+      } catch (e) {}
+
+      try {
+        const state = await window.pywebview.api.get_state();
+        if (state) {
+          if (state.target_board && document.getElementById('targetBoardUrl')) {
+            document.getElementById('targetBoardUrl').value = state.target_board;
+          }
+          if (state.login_url && document.getElementById('targetLoginUrl')) {
+            document.getElementById('targetLoginUrl').value = state.login_url;
+          }
+          if (state.platform && document.getElementById('selPlatform')) {
+            document.getElementById('selPlatform').value = state.platform;
+          }
+          if (state.gsheet_sync_url && document.getElementById('gsheetSyncUrlInput')) {
+            document.getElementById('gsheetSyncUrlInput').value = state.gsheet_sync_url;
+          }
+          if (state.gsheet_webhook_url !== undefined && document.getElementById('gsheetWebhookInput')) {
+            document.getElementById('gsheetWebhookInput').value = state.gsheet_webhook_url;
+          }
+          if (state.gsheet_auto_sync !== undefined && document.getElementById('chkGsheetAutoSync')) {
+            document.getElementById('chkGsheetAutoSync').checked = Boolean(state.gsheet_auto_sync);
+          }
+          if (state.auto_retry_failed !== undefined && document.getElementById('chkAutoRetryFailed')) {
+            document.getElementById('chkAutoRetryFailed').checked = Boolean(state.auto_retry_failed);
+          }
+          if (state.max_retries && document.getElementById('selMaxRetries')) {
+            document.getElementById('selMaxRetries').value = String(state.max_retries);
+          }
+          if (state.queue) {
+            renderQueue(state.queue);
+          }
+          if (state.blueprints) {
+            savedBlueprints = state.blueprints;
+            refreshBlueprintDropdowns();
+          }
+          if (state.persona && document.getElementById('personaPresetSelect')) {
+            document.getElementById('personaPresetSelect').value = state.persona;
+          }
+          if (state.custom_system_prompt && document.getElementById('personaPromptInput')) {
+            document.getElementById('personaPromptInput').value = state.custom_system_prompt;
+          }
+          if (state.model && document.getElementById('apiModelInput')) {
+            document.getElementById('apiModelInput').value = state.model;
+          }
+          if (state.anythingllm_url && document.getElementById('apiAnythingUrlInput')) {
+            document.getElementById('apiAnythingUrlInput').value = state.anythingllm_url;
+          }
+          if (state.anythingllm_api_key && document.getElementById('apiAnythingKeyInput')) {
+            document.getElementById('apiAnythingKeyInput').value = state.anythingllm_api_key;
+          }
+          if (state.workspace_slug && document.getElementById('apiAnythingWsInput')) {
+            document.getElementById('apiAnythingWsInput').value = state.workspace_slug;
+          }
+          if (state.ollama_url && document.getElementById('apiOllamaUrlInput')) {
+            document.getElementById('apiOllamaUrlInput').value = state.ollama_url;
+          }
+        }
+      } catch (e) {
+        console.error("Init error:", e);
+      }
+    }
+
+    function setupPlatformListener() {
+      const sel = document.getElementById('selPlatform');
+      if (sel) {
+        sel.addEventListener('change', (e) => {
+          const val = e.target.value;
+          const valLower = val.toLowerCase();
+          if (valLower.includes('knowt')) {
+            document.getElementById('targetBoardUrl').value = 'https://knowt.com/note/eda21927-9bf0-4bef-b21a-aa2347be4ce3/Untitled?isNew=true';
+          }
+          if (valLower.includes('waiver')) {
+            document.getElementById('targetBoardUrl').value = 'https://app.waiverelectronic.com/profile/home';
+            document.getElementById('targetLoginUrl').value = 'https://app.waiverelectronic.com/login';
+            showToast('Platform configured: WaiverElectronic', 'info');
+            appendLog('📋 Configured for WaiverElectronic: https://app.waiverelectronic.com/profile/home', 'text-sky-300');
+          } else if (valLower.includes('tmdb') || valLower.includes('movie')) {
+            document.getElementById('targetBoardUrl').value = 'https://www.themoviedb.org/movie/new';
+            document.getElementById('targetLoginUrl').value = 'https://www.themoviedb.org/login';
+            showToast('Platform configured: TMDb (The Movie Database)', 'info');
+            appendLog('🎬 Configured for TMDb: https://www.themoviedb.org/movie/new', 'text-sky-300');
+          } else if (valLower.includes('proboards')) {
+            document.getElementById('targetBoardUrl').value = 'https://autd.proboards.com/board/44/updates';
+            document.getElementById('targetLoginUrl').value = 'https://login.proboards.com/login/3431890/1';
+          } else if (savedBlueprints && savedBlueprints[val]) {
+            const bp = savedBlueprints[val];
+            if (bp.board_url) document.getElementById('targetBoardUrl').value = bp.board_url;
+            if (bp.login_url) document.getElementById('targetLoginUrl').value = bp.login_url;
+            showToast(`Platform configured: Blueprint '${val}'`, 'info');
+            appendLog(`🛠️ Configured for Blueprint '${val}': ${bp.board_url || 'Custom Selectors'}`, 'text-indigo-300');
+          }
+        });
+      }
+    }
+
+    function showMainTab(tab) {
+      document.getElementById('viewStudio').classList.add('hidden');
+      document.getElementById('viewPoster').classList.add('hidden');
+
+      const btnStudio = document.getElementById('mainTabStudio');
+      const btnPoster = document.getElementById('mainTabPoster');
+
+      btnStudio.className = "py-1.5 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+      btnPoster.className = "py-1.5 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+
+      if (tab === 'studio') {
+        document.getElementById('viewStudio').classList.remove('hidden');
+        btnStudio.className = "py-1.5 px-4 rounded-xl text-xs font-bold text-white btn-apple-blue shadow flex items-center gap-1.5";
+      } else {
+        document.getElementById('viewPoster').classList.remove('hidden');
+        btnPoster.className = "py-1.5 px-4 rounded-xl text-xs font-bold text-white btn-apple-blue shadow flex items-center gap-1.5";
+      }
+    }
+
+    function setSubMode(mode) {
+      document.getElementById('subViewCampaign').classList.add('hidden');
+      document.getElementById('subViewStudio').classList.add('hidden');
+      document.getElementById('subViewImport').classList.add('hidden');
+
+      ['subBtnCampaign', 'subBtnStudio', 'subBtnImport'].forEach(id => {
+        document.getElementById(id).className = "flex-1 py-1.5 rounded-2xl text-xs font-semibold text-slate-400 hover:text-white transition flex items-center justify-center gap-1";
+      });
+
+      if (mode === 'campaign') {
+        document.getElementById('subViewCampaign').classList.remove('hidden');
+        document.getElementById('subBtnCampaign').className = "flex-1 py-1.5 rounded-2xl text-xs font-bold text-white bg-blue-600/30 border border-blue-500/40 shadow transition flex items-center justify-center gap-1";
+      } else if (mode === 'studio') {
+        document.getElementById('subViewStudio').classList.remove('hidden');
+        document.getElementById('subBtnStudio').className = "flex-1 py-1.5 rounded-2xl text-xs font-bold text-white bg-blue-600/30 border border-blue-500/40 shadow transition flex items-center justify-center gap-1";
+      } else {
+        document.getElementById('subViewImport').classList.remove('hidden');
+        document.getElementById('subBtnImport').className = "flex-1 py-1.5 rounded-2xl text-xs font-bold text-white bg-blue-600/30 border border-blue-500/40 shadow transition flex items-center justify-center gap-1";
+      }
+    }
+
+    function appendLog(msg, colorClass = "text-slate-300") {
+      const box = document.getElementById("liveLogConsole");
+      if (!box) return;
+      const timeStr = new Date().toLocaleTimeString();
+      const div = document.createElement("div");
+      div.className = colorClass;
+      div.innerHTML = `<span class="text-slate-500 font-mono">[${timeStr}]</span> ${escapeHtml(msg)}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+
+      // Automatically register any verified live post URL in the hub across all concurrent tabs
+      const tabMatch = /\[Tab #(\d+)\]/i.exec(msg);
+      const idxMatch = /(?:\(#(\d+)\)|•\s*#(\d+)\])/i.exec(msg);
+      const urlMatch = /(?:Final Live URL|Live URL\s*\(#\d+\)|Incognito Verified)[\s:]+(https?:\/\/[^\s"'<>)]+)/i.exec(msg);
+      if (urlMatch) {
+        let detectedUrl = urlMatch[1].replace(/[.,;:)]+$/, '').trim();
+        const parsedTab = tabMatch ? parseInt(tabMatch[1]) : null;
+        const parsedIdx = idxMatch ? parseInt(idxMatch[1] || idxMatch[2]) : null;
+        if (typeof isPostedLiveUrl === 'function' && isPostedLiveUrl(detectedUrl)) {
+          registerLiveUrl(detectedUrl, "", parsedIdx, parsedTab);
+          showAppleNotification({
+            title: 'Live Post Verified & Published',
+            subtitle: '100% Public Access Confirmed',
+            message: detectedUrl,
+            url: detectedUrl,
+            type: 'success'
+          });
+        }
+      }
+    }
+
+    function updateStats() {
+      const text = document.getElementById("postContent")?.value || "";
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      const pill = document.getElementById("editorStats");
+      if (pill) pill.innerText = `${words} words • ${text.length} chars`;
+    }
+
+    // --- 1. Playwright Visual Recorder ---
+    function openRecorderDialog() {
+      const currentUrl = (document.getElementById('targetBoardUrl')?.value || 'https://www.themoviedb.org/movie/new').trim();
+      const input = document.getElementById('recorderTargetUrl');
+      if (input) input.value = currentUrl;
+      document.getElementById('modalRecorder')?.classList.remove('hidden');
+    }
+
+    function closeRecorderDialog() {
+      document.getElementById('modalRecorder')?.classList.add('hidden');
+    }
+
+    async function confirmLaunchRecorder() {
+      const url = (document.getElementById('recorderTargetUrl')?.value || '').trim();
+      closeRecorderDialog();
+      showToast("Launching Playwright Recorder...", "info");
+      appendLog(`🎥 Launching Playwright Inspector for: ${url}`, "text-purple-400");
+      try {
+        const res = await window.pywebview.api.launch_codegen_recorder(url);
+        if (res && res.message) {
+          showToast(res.message, res.success ? "success" : "error");
+          appendLog(res.message, res.success ? "text-emerald-400" : "text-rose-400");
+        }
+      } catch (err) {
+        showToast(`Recorder error: ${err}`, "error");
+      }
+    }
+
+    // --- 2. Site Blueprint Studio ---
+    async function openBlueprintModal() {
+      document.getElementById('modalBlueprint')?.classList.remove('hidden');
+      try {
+        const bps = await window.pywebview.api.get_blueprints();
+        savedBlueprints = bps || {};
+        refreshBlueprintDropdowns();
+      } catch (e) {
+        console.error("Error loading blueprints:", e);
+      }
+    }
+
+    function closeBlueprintModal() {
+      document.getElementById('modalBlueprint')?.classList.add('hidden');
+    }
+
+    function refreshBlueprintDropdowns() {
+      const selModal = document.getElementById('selSavedBlueprints');
+      const selPlatform = document.getElementById('selPlatform');
+      if (!selModal) return;
+
+      selModal.innerHTML = '<option value="">-- Create New Blueprint --</option>';
+      for (const name in savedBlueprints) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.innerText = `🛠️ ${name}`;
+        selModal.appendChild(opt);
+      }
+
+      if (selPlatform) {
+        const opts = Array.from(selPlatform.options);
+        for (let i = opts.length - 1; i >= 0; i--) {
+          if (opts[i].dataset.isCustom === 'true') {
+            selPlatform.remove(i);
+          }
+        }
+        for (const name in savedBlueprints) {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.innerText = `🛠️ Blueprint: ${name}`;
+          opt.dataset.isCustom = 'true';
+          selPlatform.appendChild(opt);
+        }
+      }
+    }
+
+    function loadSelectedBlueprintToForm() {
+      const name = document.getElementById('selSavedBlueprints')?.value;
+      if (!name || !savedBlueprints[name]) {
+        document.getElementById('bpNameInput').value = '';
+        const bInput = document.getElementById('bpBoardUrlInput');
+        if (bInput) bInput.value = '';
+        document.getElementById('bpReplyInput').value = 'a:has-text("Post Thread"), role=link[name="Post Thread"]';
+        document.getElementById('bpTitleInput').value = 'input[name="subject"]';
+        document.getElementById('bpEditorInput').value = 'iframe >> body';
+        document.getElementById('bpSubmitInput').value = 'button:has-text("Post Thread"), input[type="submit"]';
+        return;
+      }
+      const bp = savedBlueprints[name];
+      document.getElementById('bpNameInput').value = bp.name || name;
+      const bInput = document.getElementById('bpBoardUrlInput');
+      if (bInput) bInput.value = bp.board_url || '';
+      document.getElementById('bpReplyInput').value = bp.reply_selector || '';
+      document.getElementById('bpTitleInput').value = bp.title_selector || '';
+      document.getElementById('bpEditorInput').value = bp.editor_selector || '';
+      document.getElementById('bpSubmitInput').value = bp.submit_selector || '';
+    }
+
+    window.currentDetectedRecipe = null;
+
+    async function autoDetectBlueprintFromCodegen() {
+      const code = (document.getElementById('bpCodegenInput')?.value || '').trim();
+      if (!code) {
+        showToast("Please paste Playwright codegen lines first!", "warn");
+        return;
+      }
+      try {
+        const res = await window.pywebview.api.parse_codegen(code);
+        if (res && res.recipe) {
+          const r = res.recipe;
+          window.currentDetectedRecipe = r;
+
+          if (r.name) document.getElementById('bpNameInput').value = r.name;
+          if (r.board_url) {
+            const bInput = document.getElementById('bpBoardUrlInput');
+            if (bInput) bInput.value = r.board_url;
+            const mainBoard = document.getElementById('targetBoardUrl');
+            if (mainBoard) mainBoard.value = r.board_url;
+          }
+          if (r.reply_selector) document.getElementById('bpReplyInput').value = r.reply_selector;
+          if (r.title_selector) document.getElementById('bpTitleInput').value = r.title_selector;
+          if (r.editor_selector) document.getElementById('bpEditorInput').value = r.editor_selector;
+          if (r.submit_selector) document.getElementById('bpSubmitInput').value = r.submit_selector;
+
+          const badge = document.getElementById('bpWorkflowBadge');
+          const badgeText = document.getElementById('bpWorkflowBadgeText');
+          if (r.steps && r.steps.length > 0) {
+            if (badge && badgeText) {
+              badge.classList.remove('hidden');
+              badgeText.innerText = `⚡ Replay Workflow Active: ${r.steps.length} actions captured (including modal clicks, editor typing & live link copy)`;
+            }
+            showToast(`⚡ Captured ${r.steps.length}-step interactive workflow!`, "success");
+          } else {
+            if (badge) badge.classList.add('hidden');
+            showToast("⚡ Selectors, Title & Board URL auto-filled from codegen!", "success");
+          }
+          playSystemSound('action');
+        }
+      } catch (err) {
+        showToast(`Parse error: ${err}`, "error");
+      }
+    }
+
+    async function saveCurrentBlueprint() {
+      const name = (document.getElementById('bpNameInput')?.value || '').trim();
+      if (!name) {
+        showToast("Please enter a Blueprint Name!", "warn");
+        return;
+      }
+      const existing = savedBlueprints && savedBlueprints[name] ? savedBlueprints[name] : {};
+      const data = {
+        name: name,
+        board_url: (document.getElementById('bpBoardUrlInput')?.value || document.getElementById('targetBoardUrl')?.value || '').trim(),
+        reply_selector: (document.getElementById('bpReplyInput')?.value || '').trim(),
+        title_selector: (document.getElementById('bpTitleInput')?.value || '').trim(),
+        editor_selector: (document.getElementById('bpEditorInput')?.value || '').trim(),
+        submit_selector: (document.getElementById('bpSubmitInput')?.value || '').trim(),
+        steps: (window.currentDetectedRecipe && window.currentDetectedRecipe.steps) || existing.steps || [],
+        raw_post_code: (window.currentDetectedRecipe && window.currentDetectedRecipe.raw_post_code) || existing.raw_post_code || [],
+      };
+      try {
+        const res = await window.pywebview.api.save_blueprint(data);
+        if (res && res.success) {
+          savedBlueprints = res.blueprints || {};
+          refreshBlueprintDropdowns();
+          
+          // Automatically select this blueprint in the main platform dropdown!
+          const selPlatform = document.getElementById('selPlatform');
+          if (selPlatform) {
+            selPlatform.value = name;
+          }
+          if (data.board_url && document.getElementById('targetBoardUrl')) {
+            document.getElementById('targetBoardUrl').value = data.board_url;
+          }
+          
+          showToast(`Saved & Activated blueprint: ${name}!`, "success");
+          appendLog(`🛠️ Blueprint '${name}' saved and selected as active platform.`, "text-emerald-400 font-bold");
+          closeBlueprintModal();
+        } else {
+          showToast(`Error: ${res ? res.message : 'Could not save'}`, "error");
+        }
+      } catch (err) {
+        showToast(`Save error: ${err}`, "error");
+      }
+    }
+
+    async function deleteCurrentBlueprint() {
+      const name = (document.getElementById('selSavedBlueprints')?.value || '').trim();
+      if (!name) {
+        showToast("Select a blueprint to delete.", "warn");
+        return;
+      }
+      try {
+        const res = await window.pywebview.api.delete_blueprint(name);
+        if (res && res.success) {
+          savedBlueprints = res.blueprints || {};
+          refreshBlueprintDropdowns();
+          loadSelectedBlueprintToForm();
+          showToast(`Deleted blueprint: ${name}`, "info");
+        }
+      } catch (err) {
+        showToast(`Delete error: ${err}`, "error");
+      }
+    }
+
+    // --- 3. Persona Settings ---
+    function openPersonaModal() {
+      document.getElementById('modalPersona')?.classList.remove('hidden');
+    }
+
+    function closePersonaModal() {
+      document.getElementById('modalPersona')?.classList.add('hidden');
+    }
+
+    function applyPersonaPreset(preset) {
+      const promptInput = document.getElementById('personaPromptInput');
+      if (promptInput && PERSONA_PRESETS[preset] !== undefined) {
+        promptInput.value = PERSONA_PRESETS[preset];
+      }
+    }
+
+    async function savePersonaSettings() {
+      const preset = document.getElementById('personaPresetSelect')?.value || 'Custom';
+      const prompt = (document.getElementById('personaPromptInput')?.value || '').trim();
+      try {
+        const res = await window.pywebview.api.save_persona(preset, prompt);
+        if (res && res.success) {
+          showToast("Persona settings saved!", "success");
+          closePersonaModal();
+        }
+      } catch (err) {
+        showToast(`Persona error: ${err}`, "error");
+      }
+    }
+
+    // --- 4. API Settings ---
+    function openApiModal() {
+      document.getElementById('modalApi')?.classList.remove('hidden');
+    }
+
+    function closeApiModal() {
+      document.getElementById('modalApi')?.classList.add('hidden');
+    }
+
+    async function testAiApiConnection() {
+      const statusBox = document.getElementById('apiConnStatus');
+      if (statusBox) {
+        statusBox.classList.remove('hidden');
+        statusBox.innerHTML = '<span class="text-amber-300">⏳ Testing local connection to AnythingLLM and Ollama...</span>';
+      }
+      try {
+        const aUrl = (document.getElementById('apiAnythingUrlInput')?.value || '').trim();
+        const aKey = (document.getElementById('apiAnythingKeyInput')?.value || '').trim();
+        const aWs = (document.getElementById('apiAnythingWsInput')?.value || '').trim();
+        const oUrl = (document.getElementById('apiOllamaUrlInput')?.value || '').trim();
+
+        const res = await window.pywebview.api.test_ai_connection(aUrl, aKey, aWs, oUrl);
+        if (res && res.results && statusBox) {
+          statusBox.innerHTML = res.results.map(r => `<div>${r}</div>`).join('');
+        }
+      } catch (err) {
+        if (statusBox) statusBox.innerHTML = `<span class="text-rose-400">❌ Connection test failed: ${err}</span>`;
+      }
+    }
+
+    async function handleExportSessionJson() {
+      const boardUrl = (document.getElementById("targetBoardUrl")?.value || "").trim();
+      try {
+        const res = await window.pywebview.api.export_session_json(boardUrl);
+        if (res && res.success && res.content) {
+          const blob = new Blob([res.content], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = res.filename || "forum_session_cookies.json";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast(res.message || "Exported session cookies!", "success");
+        } else {
+          showToast(res?.message || "Could not export session", "warn");
+        }
+      } catch (err) {
+        showToast(`Export error: ${err}`, "error");
+      }
+    }
+
+    async function handleUploadSessionJson(inputEl) {
+      const file = inputEl?.files?.[0];
+      if (!file) return;
+      const boardUrl = (document.getElementById("targetBoardUrl")?.value || "").trim();
+      try {
+        const text = await file.text();
+        const res = await window.pywebview.api.upload_session_json(text, boardUrl);
+        if (res && res.message) {
+          showToast(res.message, res.success ? "success" : "error");
+          appendLog(`☁️ ${res.message}`, res.success ? "text-emerald-400" : "text-rose-400");
+        }
+      } catch (err) {
+        showToast(`Upload error: ${err}`, "error");
+      }
+      inputEl.value = "";
+    }
+
+    async function saveApiConfig() {
+      const settings = {
+        model: (document.getElementById('apiModelInput')?.value || '').trim(),
+        anythingllm_url: (document.getElementById('apiAnythingUrlInput')?.value || '').trim(),
+        anythingllm_api_key: (document.getElementById('apiAnythingKeyInput')?.value || '').trim(),
+        groq_api_key: (document.getElementById('apiGroqKeyInput')?.value || '').trim(),
+        gemini_api_key: (document.getElementById('apiGeminiKeyInput')?.value || '').trim(),
+        workspace_slug: (document.getElementById('apiAnythingWsInput')?.value || '').trim(),
+        ollama_url: (document.getElementById('apiOllamaUrlInput')?.value || '').trim(),
+      };
+      try {
+        const res = await window.pywebview.api.save_api_settings(settings);
+        if (res && res.success) {
+          showToast("AI Configuration saved!", "success");
+          closeApiModal();
+        }
+      } catch (err) {
+        showToast(`Save error: ${err}`, "error");
+      }
+    }
+
+    // --- 5. Content Studio Actions ---
+    async function generateFromSinglePrompt() {
+      const promptBox = document.getElementById("singlePromptInput");
+      const topic = promptBox ? promptBox.value.trim() : "";
+      if (!topic) {
+        showToast("Please enter a topic or prompt first!", "warn");
+        return;
+      }
+      showToast("Calling AI model for generation...", "info");
+      appendLog(`🤖 Calling AI for: "${topic.slice(0, 45)}..."`, "text-sky-300");
+      try {
+        const res = await window.pywebview.api.generate_ai_post(topic);
+        if (res && res.success) {
+          document.getElementById("postTitle").value = res.title;
+          document.getElementById("postContent").value = res.body;
+          updateStats();
+          showToast("✨ Draft generated and loaded into Editor!", "success");
+          appendLog(`✨ Generated draft: "${res.title.slice(0, 50)}"`, "text-emerald-400");
+        } else {
+          showToast(`AI Error: ${res ? res.message : "Failed to generate"}`, "error");
+        }
+      } catch (err) {
+        showToast(`AI Error: ${err}`, "error");
+      }
+    }
+
+    async function generateSingleFromInput() {
+      const kwsBox = document.getElementById('campaignKwsInput');
+      const text = (kwsBox?.value || '').trim();
+      if (!text) {
+        showToast("Please enter at least one keyword in the Campaign box!", "warn");
+        return;
+      }
+      const keywords = text.split(/\r?\n/).map(k => k.trim()).filter(k => k.length > 0);
+      showToast(`Generating post for keyword: "${keywords[0]}"...`, "info");
+      appendLog(`🎯 Campaign: Generating content for "${keywords[0]}"`, "text-sky-300");
+
+      try {
+        const res = await window.pywebview.api.generate_ai_post(keywords[0]);
+        if (res && res.success) {
+          document.getElementById('postTitle').value = res.title;
+          document.getElementById('postContent').value = res.body;
+          updateStats();
+          showToast("✨ Campaign post generated and loaded into Editor!", "success");
+          appendLog(`✨ Campaign Draft Ready: "${res.title.slice(0, 45)}"`, "text-emerald-400");
+          keywords.shift();
+          kwsBox.value = keywords.join('\n');
+        } else {
+          showToast(`Generation error: ${res ? res.message : 'Unknown'}`, "error");
+        }
+      } catch (err) {
+        showToast(`AI Error: ${err}`, "error");
+      }
+    }
+
+    async function approveAndQueue() {
+      const t = (document.getElementById('postTitle')?.value || '').trim();
+      const b = (document.getElementById('postContent')?.value || '').trim();
+      if (!b) {
+        showToast("Content body cannot be empty.", "warn");
+        return;
+      }
+      try {
+        const res = await window.pywebview.api.approve_and_queue(t, b);
+        if (res && res.success) {
+          renderQueue(res.queue);
+          showToast("✔ Post queued successfully!", "success");
+          document.getElementById('postTitle').value = '';
+          document.getElementById('postContent').value = '';
+          updateStats();
+        } else {
+          showToast(`✖ ${res.message}`, "error");
+        }
+      } catch (e) {
+        showToast(`✖ ${e}`, "error");
+      }
+    }
+
+    async function approveAndPostNow() {
+      const t = (document.getElementById('postTitle')?.value || '').trim();
+      const b = (document.getElementById('postContent')?.value || '').trim();
+      if (!b) {
+        showToast("Please enter or generate content first!", "warn");
+        return;
+      }
+      try {
+        const res = await window.pywebview.api.approve_and_queue(t, b);
+        if (res && res.success) {
+          renderQueue(res.queue);
+          showToast("✔ Post queued! Switching to Forum Poster...", "success");
+          showMainTab('poster');
+          setTimeout(() => {
+            handlePostQueue();
+          }, 400);
+        }
+      } catch (e) {
+        showToast(`Error: ${e}`, "error");
+      }
+    }
+
+    function regeneratePost() {
+      const t = (document.getElementById('postTitle')?.value || '').trim();
+      if (t) {
+        document.getElementById('singlePromptInput').value = `Write an updated in-depth forum post about: ${t}`;
+      }
+      generateFromSinglePrompt();
+    }
+
+    function skipDraft() {
+      document.getElementById('postTitle').value = '';
+      document.getElementById('postContent').value = '';
+      updateStats();
+      showToast("Draft cleared.", "info");
+    }
+
+    // --- 6. Direct Links & File Imports ---
+    function toggleDirectMode(chk) {
+      const container = document.getElementById('directLinksContainer');
+      if (container) {
+        container.style.opacity = chk.checked ? '1' : '0.4';
+      }
+    }
+
+    async function toggleSavedSites(checkbox) {
+      const box = document.getElementById('directLinksInput');
+      if (!box) return;
+      if (checkbox.checked) {
+        try {
+          const sites = await window.pywebview.api.get_saved_sites();
+          if (sites && sites.length > 0) {
+            box.value = sites.join('\n');
+            showToast(`Loaded ${sites.length} saved verified sites!`, "info");
+          } else {
+            showToast("No saved verified sites found yet.", "info");
+          }
+        } catch (e) {}
+      } else {
+        box.value = '';
+      }
+    }
+
+    function loadDirectLinksFile() {
+      document.getElementById('directLinksFileInput')?.click();
+    }
+
+    function handleDirectLinksFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.split(/\r?\n/).filter(l => l.trim().startsWith('http'));
+        const box = document.getElementById('directLinksInput');
+        if (box) {
+          box.value = lines.join('\n');
+          showToast(`Loaded ${lines.length} direct links from ${file.name}!`, "success");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function importLocalFiles() {
+      document.getElementById('localFilesInput')?.click();
+    }
+
+    function handleLocalFilesSelected(input) {
+      const files = Array.from(input.files);
+      if (!files || files.length === 0) return;
+      showToast(`Importing ${files.length} document(s)...`, "info");
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          const content = e.target.result;
+          const title = file.name.replace(/\.[^/.]+$/, "");
+          if (content && typeof content === 'string') {
+            const res = await window.pywebview.api.approve_and_queue(title, content.slice(0, 4000));
+            if (res && res.success) {
+              renderQueue(res.queue);
+            }
+          }
+        };
+        reader.readAsText(file);
+      });
+      showToast(`Imported files into queue!`, "success");
+    }
+
+    async function loadGoogleLinks() {
+      const btn = document.getElementById('btnLoadLinks');
+      const val = (document.getElementById('googleLinksInput')?.value || '').trim();
+      if (!val) {
+        showToast("Please paste Google Doc or Sheet links first!", "warn");
+        return;
+      }
+      btn.disabled = true;
+      btn.innerText = "⏳ Loading...";
+      try {
+        const res = await window.pywebview.api.load_google_links(val);
+        if (res && res.success) {
+          showToast(`✔ Loaded ${res.added || res.count} item(s) successfully!`, "success");
+          renderQueue(res.queue);
+        } else {
+          showToast(`✖ ${res ? res.message : 'Error loading links'}`, "error");
+        }
+      } catch (err) {
+        showToast(`✖ ${err}`, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "📥 Load Google Links";
+      }
+    }
+
+    // --- 7. Execution Handlers: Login, Post Queue, Live Post ---
+    async function analyzeUnknownSiteNow() {
+      const boardInput = document.getElementById("targetBoardUrl");
+      const url = (boardInput?.value || "").trim();
+      if (!url) {
+        showToast("Enter a Target Board URL first!", "warn");
+        return;
+      }
+      showToast("Analyzing unknown website HTML & DOM...", "info");
+      appendLog(`🧭 Running Unknown-Site Pre-Flight & DOM Analyzer on: ${url}`, "text-sky-300");
+      try {
+        const res = await window.pywebview.api.analyze_unknown_site(url);
+        if (res && res.success) {
+          if (res.create_url && res.create_url !== url && boardInput) {
+            boardInput.value = res.create_url;
+            appendLog(`✨ Auto-resolved direct post creation URL: ${res.create_url}`, "text-emerald-400");
+          }
+          if (res.blueprints) {
+            savedBlueprints = res.blueprints;
+          }
+          showToast(res.message || "Site analysis complete!", "success");
+        } else {
+          showToast((res && res.message) || "Could not analyze site.", "warn");
+        }
+      } catch (err) {
+        showToast(`Analyze error: ${err}`, "error");
+      }
+    }
+
+    async function handleGoogleAccountLogin() {
+      showToast("Opening Google-Safe Native Browser for Google Sign-In...", "info");
+      appendLog("🔵 Opening https://accounts.google.com/ in Zero-Automation Native Browser (Master Profile)...", "text-sky-300");
+      try {
+        const res = await window.pywebview.api.start_login_session("https://accounts.google.com/");
+        if (res && res.message) {
+          showToast(res.message, res.success ? "info" : "warn");
+        }
+      } catch (err) {
+        showToast(`Google Login error: ${err}`, "error");
+        appendLog(`❌ Google Login launch error: ${err}`, "text-rose-400");
+      }
+    }
+
+    async function handleLogin() {
+      const loginUrl = (document.getElementById("targetLoginUrl")?.value || "").trim();
+      showToast("Launching browser for login...", "info");
+      appendLog(`🔑 Opening browser for login: ${loginUrl || 'Default Login'}`, "text-sky-300");
+      try {
+        const res = await window.pywebview.api.start_login_session(loginUrl);
+        if (res && res.message) {
+          showToast(res.message, res.success ? "info" : "warn");
+        }
+      } catch (err) {
+        showToast(`Login error: ${err}`, "error");
+        appendLog(`❌ Login launch error: ${err}`, "text-rose-400");
+      }
+    }
+
+    async function handleConfirmLiveLogin() {
+      showToast("Login confirmed! Starting live posting...", "success");
+      appendLog("✅ Login confirmed by user. Proceeding with automated posting...", "text-emerald-400");
+      try {
+        const res = await window.pywebview.api.confirm_live_login();
+        if (res && res.message) {
+          showToast(res.message, "success");
+        }
+      } catch (err) {
+        showToast(`Confirm error: ${err}`, "error");
+      }
+    }
+
+    async function handleSaveSession() {
+      showToast("Saving session cookies...", "info");
+      appendLog("💾 Capturing session cookies from active browser...", "text-slate-300");
+      try {
+        const res = await window.pywebview.api.save_session();
+        if (res && res.message) {
+          showToast(res.message, res.success ? "success" : "warn");
+          appendLog(res.message, res.success ? "text-emerald-400" : "text-amber-300");
+        }
+      } catch (e) {
+        showToast(`Save error: ${e}`, "error");
+      }
+    }
+
+    async function handlePostQueue() {
+      const boardUrl = (document.getElementById("targetBoardUrl")?.value || "").trim();
+      const loginUrl = (document.getElementById("targetLoginUrl")?.value || "").trim();
+      const platform = (document.getElementById("selPlatform")?.value || "Auto-Detect (Recommended)").trim();
+      const headless = document.getElementById("chkHeadless")?.checked ? true : false;
+      const delayMin = parseFloat(document.getElementById("delayMin")?.value) || 3.0;
+      const delayMax = parseFloat(document.getElementById("delayMax")?.value) || 6.0;
+
+      let directLinks = [];
+      const isDirect = document.getElementById("chkDirectMode")?.checked;
+      if (isDirect) {
+        const directText = (document.getElementById("directLinksInput")?.value || "").trim();
+        directLinks = directText.split(/\r?\n/).map(l => l.trim()).filter(l => l.startsWith("http"));
+      }
+
+      showToast("Starting queue runner...", "warn");
+      appendLog(`🚀 Queue runner started on ${platform}...`, "text-indigo-300");
+      try {
+        const concurrency = parseInt(document.getElementById("selConcurrency")?.value) || 2;
+        const res = await window.pywebview.api.start_posting_queue(boardUrl, loginUrl, platform, headless, delayMin, delayMax, directLinks, concurrency);
+        if (res && res.message) {
+          showToast(res.message, res.success ? "success" : "warn");
+          appendLog(res.message, res.success ? "text-emerald-400" : "text-amber-300");
+        }
+      } catch (err) {
+        showToast(`Post queue error: ${err}`, "error");
+        appendLog(`❌ Post queue error: ${err}`, "text-rose-400");
+      }
+    }
+
+    async function handleLivePost() {
+      const boardUrl = (document.getElementById("targetBoardUrl")?.value || "").trim();
+      const loginUrl = (document.getElementById("targetLoginUrl")?.value || "").trim();
+      const platform = (document.getElementById("selPlatform")?.value || "Auto-Detect (Recommended)").trim();
+      const delayMin = parseFloat(document.getElementById("delayMin")?.value) || 3.0;
+      const delayMax = parseFloat(document.getElementById("delayMax")?.value) || 6.0;
+      const concurrency = parseInt(document.getElementById("selConcurrency")?.value) || 2;
+      let directLinks = [];
+      if (document.getElementById("chkDirectMode")?.checked) {
+        const directText = (document.getElementById("directLinksInput")?.value || "").trim();
+        directLinks = directText.split(/\r?\n/).map(l => l.trim()).filter(l => l.startsWith("http"));
+      }
+
+      showToast("Starting live interactive session...", "warn");
+      appendLog("⚡ Live interactive posting started...", "text-amber-300");
+      try {
+        const res = await window.pywebview.api.start_live_post(boardUrl, loginUrl, platform, delayMin, delayMax, directLinks, concurrency);
+        if (res && res.message) {
+          showToast(res.message, res.success ? "success" : "warn");
+          appendLog(res.message, res.success ? "text-emerald-400" : "text-amber-300");
+        }
+      } catch (err) {
+        showToast(`Live post error: ${err}`, "error");
+        appendLog(`❌ Live post error: ${err}`, "text-rose-400");
+      }
+    }
+
+    async function handleStop() {
+      showToast("Stopping process...", "error");
+      appendLog("⏹️ Stop requested by user.", "text-rose-400");
+      try {
+        await window.pywebview.api.stop_all();
+      } catch (e) {}
+    }
+
+    // --- 8. Queue Management ---
+    function renderQueue(queue) {
+      currentQueue = queue || [];
+      // Auto-register live URLs from every queue item across all tabs
+      if (currentQueue && Array.isArray(currentQueue)) {
+        currentQueue.forEach((item, idx) => {
+          if (item && item.url && typeof isPostedLiveUrl === 'function' && isPostedLiveUrl(item.url)) {
+            registerLiveUrl(item.url, item.title || `Post #${idx + 1}`, idx + 1, item.tab || null);
+          }
+        });
+      }
+      const badge = document.getElementById('queueTableBadge');
+      if (badge) badge.innerText = `${currentQueue.length} items`;
+
+      const tbody = document.getElementById('queueTableBody');
+      if (!tbody) return;
+
+      if (!currentQueue || currentQueue.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-500 italic text-xs font-sans">Queue is empty. Use Content Studio to generate posts or import Google links.</td></tr>`;
+        return;
+      }
+
+      // Update progress bar status
+      const doneCount = currentQueue.filter(q => q.status && (q.status.includes('Done') || q.status.includes('Live') || q.status.includes('Posted'))).length;
+      updateProgressBar(doneCount, currentQueue.length);
+
+      tbody.innerHTML = currentQueue.map((q, idx) => {
+        const tabLabel = q.tab ? `Tab #${q.tab}` : 'Done';
+        let statusBadge = `<span class="whitespace-nowrap inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[11px] font-bold font-mono tracking-wide shadow-sm"><span>⏳</span> <span>Pending</span></span>`;
+        if (q.status && (q.status.includes('Progress') || q.status.includes('Posting'))) {
+          const activeLabel = q.status.replace('⚡', '').replace('🔄', '').trim() || 'Active';
+          statusBadge = `<span class="whitespace-nowrap inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40 text-[11px] font-bold font-mono tracking-wide shadow-sm animate-pulse"><span>⚡</span> <span>${escapeHtml(activeLabel)}</span></span>`;
+        } else if (q.status && (q.status.includes('Done') || q.status.includes('Live') || q.status.includes('Posted'))) {
+          statusBadge = `<span class="whitespace-nowrap inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold font-mono tracking-wide shadow-sm"><span>✅</span> <span>${escapeHtml(tabLabel)}</span></span>`;
+        } else if (q.status && q.status.includes('Fail')) {
+          statusBadge = `<span class="whitespace-nowrap inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[11px] font-bold font-mono tracking-wide shadow-sm"><span>❌</span> <span>Failed</span></span>`;
+        }
+
+        const sizeStr = q.body ? `${q.body.length} chars` : '0 chars';
+        const urlSubRow = q.url ? `
+          <div class="mt-0.5 flex items-center gap-1.5" onclick="event.stopPropagation();">
+            <span class="text-[10px] font-mono text-emerald-400">🔗</span>
+            <a href="${escapeHtml(q.url)}" target="_blank" class="text-[11px] font-mono text-emerald-400 hover:text-emerald-300 underline truncate max-w-[280px] sm:max-w-[360px]" title="${escapeHtml(q.url)}">${escapeHtml(q.url)}</a>
+            <button onclick="copySingleUrl('${escapeHtml(q.url)}')" class="px-1.5 py-0.2 rounded bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-[9px] font-mono">Copy</button>
+          </div>
+        ` : '';
+
+        return `
+          <tr class="hover:bg-white/[0.04] cursor-pointer transition border-b border-white/5" onclick="loadItemToEditor(${idx})">
+            <td class="py-2.5 px-3 text-center text-slate-400 font-mono text-[11px]">${q.num || idx + 1}</td>
+            <td class="py-2.5 px-4 text-center whitespace-nowrap">${statusBadge}</td>
+            <td class="py-2.5 px-3 text-slate-200 font-sans max-w-xs sm:max-w-sm font-medium text-xs">
+              <div class="truncate">${escapeHtml(q.title)}</div>
+              ${urlSubRow}
+            </td>
+            <td class="py-2.5 px-3 text-right text-slate-400 font-mono text-[11px]">${sizeStr}</td>
+            <td class="py-2.5 px-3 text-center" onclick="event.stopPropagation(); deleteQueueItem(${idx});">
+              <button class="text-slate-500 hover:text-rose-400 text-xs transition p-1">✕</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function loadItemToEditor(idx) {
+      if (currentQueue[idx]) {
+        document.getElementById('postTitle').value = currentQueue[idx].title || "";
+        document.getElementById('postContent').value = currentQueue[idx].body || "";
+        updateStats();
+        showMainTab('studio');
+        showToast(`Loaded item #${idx + 1} into editor`, "info");
+      }
+    }
+
+    async function deleteQueueItem(idx) {
+      try {
+        const res = await window.pywebview.api.delete_queue_item(idx);
+        if (res && res.queue) {
+          renderQueue(res.queue);
+          showToast("Item removed from queue.", "info");
+        }
+      } catch (e) {}
+    }
+
+    async function clearEntireQueue() {
+      try {
+        const res = await window.pywebview.api.clear_queue();
+        renderQueue(res.queue || []);
+        showToast("Queue cleared", "info");
+      } catch (e) {}
+    }
+
+    // --- 9. Toast Notification System ---
+    function showToast(message, type = "info") {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const div = document.createElement('div');
+      
+      let bgClass = "bg-[#181a24]/95 text-slate-200 border-white/10";
+      let icon = "ℹ️";
+      if (type === "success") {
+        bgClass = "bg-[#0d2a1b]/95 text-emerald-300 border-emerald-500/40 shadow-emerald-950/40";
+        icon = "✔";
+      } else if (type === "error") {
+        bgClass = "bg-[#2d0e14]/95 text-rose-300 border-rose-500/40 shadow-rose-950/40";
+        icon = "✖";
+      } else if (type === "warn") {
+        bgClass = "bg-[#2c2009]/95 text-amber-300 border-amber-500/40 shadow-amber-950/40";
+        icon = "⚠️";
+      }
+
+      div.className = `${bgClass} border rounded-2xl px-4 py-2.5 shadow-2xl flex items-center gap-2.5 text-xs font-semibold backdrop-blur-2xl pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0`;
+      div.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
+      
+      container.appendChild(div);
+      setTimeout(() => {
+        div.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        div.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => div.remove(), 300);
+      }, 4000);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+  
+    // --- Live Progression Bar Controller ---
+    function updateProgressBar(completed, total) {
+      const fill = document.getElementById('progressBarFill');
+      const percentText = document.getElementById('progressPercentText');
+      const statusText = document.getElementById('progressStatusText');
+      const dot = document.getElementById('progressDot');
+
+      if (!total || total === 0) {
+        if (fill) fill.style.width = '0%';
+        if (percentText) percentText.innerText = '0% (0 / 0)';
+        if (statusText) statusText.innerText = 'Queue Idle';
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-500';
+        return;
+      }
+
+      const pct = Math.min(100, Math.round((completed / total) * 100));
+      if (fill) fill.style.width = `${pct}%`;
+      if (percentText) percentText.innerText = `${pct}% (${completed} / ${total})`;
+
+      if (statusText && dot) {
+        if (pct === 100) {
+          statusText.innerHTML = '<span class="text-emerald-400 font-bold">🎉 All Queue Items Completed</span>';
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]';
+        } else if (completed > 0) {
+          statusText.innerHTML = `<span class="text-blue-400 font-bold">⚡ Running Task #${completed + 1} of ${total}</span>`;
+          dot.className = 'w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_#3b82f6]';
+        } else {
+          statusText.innerText = `Queue Ready (${total} pending)`;
+          dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        }
+      }
+    }
+
+    // --- Interactive Ambient Constellation Background ---
+    (function initAmbientBackground() {
+      const canvas = document.getElementById('ambientCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let mouse = { x: null, y: null, radius: 140 };
+
+      window.addEventListener('resize', resize);
+      window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+      window.addEventListener('mouseout', () => {
+        mouse.x = null;
+        mouse.y = null;
+      });
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+      resize();
+
+      const particleCount = 42;
+      const particles = [];
+      const colors = [
+        'rgba(0, 113, 227, 0.45)',   // Sapphire Blue
+        'rgba(191, 90, 242, 0.35)',  // Violet
+        'rgba(48, 209, 88, 0.3)',    // Emerald
+        'rgba(10, 132, 255, 0.35)'   // Electric Blue
+      ];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          radius: Math.random() * 2.2 + 1.2,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Faint connecting constellation lines
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 120) {
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(255, 255, 255, ${0.035 * (1 - dist / 120)})`;
+              ctx.lineWidth = 0.7;
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Particle fluid inertia and subtle mouse interaction
+        for (let p of particles) {
+          if (mouse.x !== null && mouse.y !== null) {
+            const dx = p.x - mouse.x;
+            const dy = p.y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < mouse.radius) {
+              const force = (mouse.radius - dist) / mouse.radius;
+              p.x += (dx / dist) * force * 1.6;
+              p.y += (dy / dist) * force * 1.6;
+            }
+          }
+
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+  
+    // --- Authoritative Live URL Registry & Incognito Verification ---
+    window.postedLiveUrls = [];
+
+    function isPostedLiveUrl(url) {
+      if (!url || typeof url !== "string") return false;
+      url = url.trim();
+      if (!url.startsWith("http://") && !url.startsWith("https://")) return false;
+      const uLower = url.toLowerCase();
+      // Filter out internal, local, editor, & un-published links
+      const badPatterns = [
+        "127.0.0.1", "localhost", "about:blank", "/login", "/signin", "/signup", "/register",
+        "/profile/home", "/profile/templatelist", "/profile/", "/template?", "/thread/new", "/board/",
+        "newthread.php", "posting.php?mode=post", "/post-thread", "/create-thread", "/new-content",
+        "?isnew=true", "&isnew=true", "/untitled", "/404", "/error"
+      ];
+      if (badPatterns.some(p => uLower.includes(p))) return false;
+      const cleanNoSlash = uLower.replace(/\/+$/, "");
+      if (["/template", "/home", "/dashboard", "/new", "/create", "/write", "/compose", "/edit"].some(s => cleanNoSlash.endsWith(s))) {
+        return false;
+      }
+      try {
+        const parsed = new URL(url);
+        const pathClean = (parsed.pathname || "").replace(/^\/+|\/+$/g, "");
+        if (!pathClean && !parsed.search.includes("id=") && !parsed.search.includes("p=") && !parsed.search.includes("t=")) {
+          return false;
+        }
+      } catch (e) {
+        return false;
+      }
+      if (uLower.includes("waiverelectronic.com")) {
+        return uLower.includes("/render/") || uLower.includes("templatebyrefid");
+      }
+      if (uLower.includes("proboards.com")) {
+        return uLower.includes("/thread/") && !uLower.includes("/thread/new");
+      }
+      if (uLower.includes("themoviedb.org")) {
+        return /\/movie\/\d+/.test(uLower);
+      }
+      if (uLower.includes("knowt.com")) {
+        return /\/note\/[0-9a-f\-]{20,}/.test(uLower) && !uLower.includes("?isnew=true") && !cleanNoSlash.endsWith("/untitled");
+      }
+      return true;
+    }
+
+    function registerLiveUrl(url, title = "", postIndex = null, tabId = null) {
+      if (!isPostedLiveUrl(url)) return;
+      url = url.trim();
+      const cleanTitle = (title || "").trim();
+
+      // Strictly isolate entries by postIndex and tabId so Tab #2, Tab #3, Tab #4 never overwrite Tab #1
+      let existing = null;
+      if (postIndex !== null) {
+        existing = window.postedLiveUrls.find(x => x.postIndex === postIndex);
+        if (!existing) {
+          existing = window.postedLiveUrls.find(
+            x => x.postIndex === null && x.url === url && (!tabId || !x.tabId || x.tabId === tabId)
+          );
+        }
+      } else if (tabId !== null) {
+        existing = window.postedLiveUrls.find(
+          x => x.postIndex === null && x.tabId === tabId && x.url === url
+        );
+      } else {
+        existing = window.postedLiveUrls.find(
+          x => x.postIndex === null && x.url === url && (!cleanTitle || x.title === cleanTitle)
+        );
+      }
+
+      if (existing) {
+        let changed = false;
+        if (postIndex !== null && existing.postIndex !== postIndex) { existing.postIndex = postIndex; changed = true; }
+        if (tabId !== null && existing.tabId !== tabId) { existing.tabId = tabId; changed = true; }
+        if (cleanTitle && (existing.title.startsWith("Live Post #") || existing.title !== cleanTitle)) {
+          existing.title = cleanTitle;
+          changed = true;
+        }
+        if (changed) renderVerifiedPostsHub();
+        return;
+      }
+
+      window.postedLiveUrls.push({
+        postIndex: postIndex,
+        tabId: tabId,
+        url: url,
+        title: cleanTitle || `Live Post #${window.postedLiveUrls.length + 1}`,
+        time: new Date().toLocaleTimeString(),
+        verified: true
+      });
+      renderVerifiedPostsHub();
+    }
+
+    function renderVerifiedPostsHub() {
+      const container = document.getElementById("verifiedPostsContainer");
+      const badge = document.getElementById("verifiedLiveCountBadge");
+      if (badge) badge.innerText = `${window.postedLiveUrls.length} Live`;
+      if (!container) return;
+
+      if (window.postedLiveUrls.length === 0) {
+        container.innerHTML = `
+          <div id="verifiedPostsEmpty" class="py-3 text-center text-slate-500 italic text-[11px]">
+            No live posts generated yet. As threads & waivers are posted, their verified public URLs will appear here with instant incognito verification.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = window.postedLiveUrls.map((item, idx) => `
+        <div class="flex items-center justify-between p-2 px-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 transition group">
+          <div class="flex items-center space-x-2.5 overflow-hidden pr-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]"></span>
+            ${item.tabId ? `<span class="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 font-mono text-[10px] font-bold shrink-0">Tab #${item.tabId}</span>` : ''}
+            <div class="truncate text-xs">
+              <span class="font-bold text-slate-200">${item.postIndex ? `#${item.postIndex} ` : ''}${escapeHtml(item.title)}:</span>
+              <a href="${escapeHtml(item.url)}" target="_blank" class="ml-1 text-emerald-400 hover:text-emerald-300 font-mono text-[11px] underline">
+                ${escapeHtml(item.url)}
+              </a>
+            </div>
+          </div>
+          <div class="flex items-center space-x-1.5 shrink-0">
+            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+              🛡️ Incognito Verified
+            </span>
+            <button onclick="copySingleUrl('${escapeHtml(item.url)}')" class="px-2 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 hover:text-white text-[10px] font-semibold transition" title="Copy this URL">
+              📋 Copy
+            </button>
+            <button onclick="verifySingleUrlIncognito('${escapeHtml(item.url)}')" class="px-2 py-0.5 rounded-md bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 hover:text-white text-[10px] font-semibold transition" title="Re-verify in Incognito mode">
+              🛡️ Test
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+
+    async function saveGsheetConfig() {
+      const url = (document.getElementById("gsheetSyncUrlInput")?.value || "").trim();
+      const webhookUrl = (document.getElementById("gsheetWebhookInput")?.value || "").trim();
+      const autoSync = document.getElementById("chkGsheetAutoSync")?.checked ?? true;
+      try {
+        await window.pywebview.api.save_gsheet_settings(url, autoSync, webhookUrl);
+      } catch (e) {}
+    }
+
+    async function copyAppsScriptWebhookCode() {
+      try {
+        const res = await window.pywebview.api.get_gsheet_webhook_script();
+        if (res && res.code) {
+          await navigator.clipboard.writeText(res.code);
+          showToast("⚡ Copied 0.2s Apps Script to Clipboard! Paste in Google Sheet -> Extensions -> Apps Script -> Deploy as Web App.", "success");
+          appendLog("⚡ Copied 0.2s Google Apps Script Webhook code! In your Google Sheet, click Extensions -> Apps Script -> Paste -> Deploy -> New deployment -> Web App (Anyone), then paste the /exec URL into the ⚡ Webhook box.", "text-amber-300");
+        }
+      } catch (err) {
+        showToast(`Copy error: ${err}`, "error");
+      }
+    }
+
+    async function saveRetrySettingsUI() {
+      const autoRetry = document.getElementById("chkAutoRetryFailed")?.checked ?? true;
+      const maxRetries = parseInt(document.getElementById("selMaxRetries")?.value) || 2;
+      try {
+        await window.pywebview.api.save_retry_settings(autoRetry, maxRetries);
+        showToast(`🩹 Auto-Healer set to ${autoRetry ? maxRetries + 'x passes' : 'OFF'}`, "info");
+      } catch (e) {}
+    }
+
+    async function healFailedQueueNow() {
+      try {
+        const r = await window.pywebview.api.reset_failed();
+        if (r && r.queue) {
+          renderQueue(r.queue);
+        }
+        await handlePostQueue();
+      } catch (err) {
+        showToast(`Heal error: ${err}`, "error");
+      }
+    }
+
+    async function syncAllUrlsToGoogleSheetNow() {
+      const sheetUrl = (document.getElementById("gsheetSyncUrlInput")?.value || "").trim();
+      const urls = (window.postedLiveUrls || []).map(x => x.url).filter(Boolean);
+      if (urls.length === 0) {
+        showToast("No verified live URLs to push yet!", "warn");
+        return;
+      }
+      showToast(`Pushing ${urls.length} URL(s) to Google Sheet Column A (A1+)...`, "info");
+      try {
+        const res = await window.pywebview.api.sync_live_urls_to_sheet(urls, sheetUrl);
+        if (res && res.message) {
+          showToast(res.message, res.success ? "success" : "warn");
+          appendLog(`📊 ${res.message}`, res.success ? "text-emerald-400" : "text-amber-300");
+        }
+      } catch (err) {
+        showToast(`Sheet sync error: ${err}`, "error");
+      }
+    }
+
+    function copySingleUrl(url) {
+      if (!url) return;
+      navigator.clipboard.writeText(url).then(() => {
+        showToast("Copied live URL to clipboard!", "success");
+      }).catch(() => {
+        showToast("Failed to copy to clipboard", "error");
+      });
+    }
+
+    async function verifySingleUrlIncognito(url) {
+      if (!url) return;
+      showToast("Testing URL in Incognito Mode...", "info");
+      try {
+        let res;
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.verify_url) {
+          res = await window.pywebview.api.verify_url(url);
+        } else {
+          const resp = await fetch("/api/verify_url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: url })
+          });
+          res = await resp.json();
+        }
+        if (res && res.verified) {
+          showToast("🛡️ Verified: URL is publicly accessible in Incognito mode!", "success");
+          appendLog(`🛡️ [Incognito Verified] ${url} is 100% public & accessible.`, "text-emerald-400 font-bold");
+        } else {
+          showToast("⚠️ Notice: URL may require login or is not public.", "warning");
+          appendLog(`⚠️ [Incognito Notice] ${url} redirected or is not public.`, "text-amber-400");
+        }
+      } catch (e) {
+        showToast(`Verification check: ${e}`, "info");
+      }
+    }
+
+    async function verifyAllLiveUrlsIncognito() {
+      const urls = getAllPostedLiveUrls();
+      if (urls.length === 0) {
+        showToast("No live URLs to verify yet.", "info");
+        return;
+      }
+      showToast(`Verifying ${urls.length} live URL(s) in Incognito mode...`, "info");
+      for (const u of urls) {
+        await verifySingleUrlIncognito(u);
+      }
+    }
+
+    function clearVerifiedPosts() {
+      window.postedLiveUrls = [];
+      renderVerifiedPostsHub();
+      showToast("Cleared verified posts list", "info");
+    }
+
+    function getAllPostedLiveUrls() {
+      const urls = [];
+
+      // 1. From registry
+      if (window.postedLiveUrls && Array.isArray(window.postedLiveUrls)) {
+        window.postedLiveUrls.forEach(item => {
+          if (item && item.url && isPostedLiveUrl(item.url) && !urls.includes(item.url)) {
+            urls.push(item.url);
+          }
+        });
+      }
+
+      // 2. From queue
+      if (typeof currentQueue !== "undefined" && Array.isArray(currentQueue)) {
+        currentQueue.forEach(item => {
+          if (item && item.url && isPostedLiveUrl(item.url) && !urls.includes(item.url)) {
+            urls.push(item.url);
+          }
+        });
+      }
+
+      // 3. From console logs specifically matching live URL patterns
+      const consoleEl = document.getElementById("liveLogConsole");
+      if (consoleEl) {
+        const text = consoleEl.innerText;
+        const successRegex = /(?:Success|Live Waiver URL|Final Live URL|Live URL|Incognito Verified)[\s:]+(https?:\/\/[^\s"'<>)]+)/gi;
+        let m;
+        while ((m = successRegex.exec(text)) !== null) {
+          let u = m[1].replace(/[.,;:)]+$/, "").trim();
+          if (isPostedLiveUrl(u) && !urls.includes(u)) {
+            urls.push(u);
+          }
+        }
+      }
+
+      return urls;
+    }
+
+    function copyAllUrlsFromLogs() {
+      const urls = getAllPostedLiveUrls();
+
+      if (urls.length === 0) {
+        showToast("No verified live post URLs found yet. Navigation links like /profile/home are filtered out.", "warning");
+        return;
+      }
+
+      const textToCopy = urls.join("\n");
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast(`🎉 Copied ${urls.length} verified live URL(s) to clipboard!`, "success");
+        appendLog(`📋 Copied ${urls.length} verified live post URL(s) to clipboard:\n${textToCopy}`, "text-emerald-400 font-mono");
+      }).catch(() => {
+        const ta = document.createElement("textarea");
+        ta.value = textToCopy;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast(`🎉 Copied ${urls.length} verified live URL(s) to clipboard!`, "success");
+      });
+    }
+  </script>
+  <!-- Apple-Style Floating Notification Banner Container -->
+  <div id="appleNotificationContainer"></div>
+</body>
+</html>

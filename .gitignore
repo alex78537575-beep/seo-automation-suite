@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Local session files and auth cookies (NEVER COMMIT SENSITIVE COOKIES)
+.forum_session*.json
+session*.json
+.forum_profile*/
+.forum_studio_ui_profile/
+chrome_profile*/
+Singleton*
+
+# Local configurations & environment variables
+config.json
+.env
+*.local
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OAuth & Local Tokens
+token.json
+credentials.json
+client_secret*.json
+*.pyc

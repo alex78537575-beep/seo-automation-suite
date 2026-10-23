@@ -1,0 +1,63 @@
+{
+  "Knowt App": {
+    "name": "Knowt App",
+    "board_url": "https://knowt.com/home",
+    "login_url": "https://knowt.com/",
+    "domain_pattern": "knowt.com",
+    "reply_selector": "button:has-text(\"Notebook\"), button.knowt-1dwueds, role=button[name*=\"Notebook\" i]",
+    "title_selector": "textarea#note-main-title, #note-main-title, textarea[placeholder=\"Add a title\"]",
+    "editor_selector": "#notepage-editor-outer-container .tiptap.ProseMirror, #notepage-editor-outer-container [contenteditable=\"true\"]",
+    "submit_selector": "button:has-text(\"Share\"), button:has-text(\"Done\")",
+    "steps": [
+      {
+        "type": "goto",
+        "code": "page.goto(\"https://knowt.com/note/eda21927-9bf0-4bef-b21a-aa2347be4ce3/Untitled?isNew=true\")",
+        "url": "https://knowt.com/note/eda21927-9bf0-4bef-b21a-aa2347be4ce3/Untitled?isNew=true"
+      },
+      {
+        "type": "optional_click",
+        "code": "page.locator('button[data-testid=\"dismiss-interruption\"], button[aria-label=\"Close\"], button.knowt-q4jvfi').first.click(timeout=3000)"
+      },
+      {
+        "type": "title",
+        "code": "page.locator('textarea#note-main-title, #note-main-title, textarea[placeholder=\"Add a title\"]').first.fill(val)",
+        "locator": "page.locator('textarea#note-main-title, #note-main-title, textarea[placeholder=\"Add a title\"]').first"
+      },
+      {
+        "type": "body_focus",
+        "code": "page.locator('#notepage-editor-outer-container .tiptap.ProseMirror, #notepage-editor-outer-container [contenteditable=\"true\"]').first.click()"
+      },
+      {
+        "type": "click",
+        "code": "page.locator('button:has-text(\"Share\"), button.knowt-o80a1t, role=button[name=\"Share\"]').first.click(timeout=6000)"
+      },
+      {
+        "type": "copy_link",
+        "code": "page.locator('button:has-text(\"Copy link\"), button.knowt-1prujqy, role=button[name=\"Copy link\"]').first.click(timeout=6000)"
+      },
+      {
+        "type": "click",
+        "code": "page.locator('button:has-text(\"Done\"), button.knowt-1lbf6sx, role=button[name=\"Done\"]').first.click(timeout=6000)"
+      }
+    ],
+    "raw_post_code": [
+      "page.goto(\"https://knowt.com/note/eda21927-9bf0-4bef-b21a-aa2347be4ce3/Untitled?isNew=true\")",
+      "page.locator('button[data-testid=\"dismiss-interruption\"]').first.click()",
+      "page.locator('textarea#note-main-title').first.fill(title)",
+      "page.locator('#notepage-editor-outer-container .tiptap.ProseMirror').first.click()",
+      "page.locator('button:has-text(\"Share\")').first.click()",
+      "page.locator('button:has-text(\"Copy link\")').first.click()",
+      "page.locator('button:has-text(\"Done\")').first.click()"
+    ]
+  },
+  "CricketWindies Forum": {
+    "name": "CricketWindies Forum",
+    "board_url": "https://cricketwindies.com/forum-2-we-don-t-like-cricket-we-love-it.html",
+    "login_url": "https://cricketwindies.com/member.php?action=login",
+    "domain_pattern": "cricketwindies.com",
+    "reply_selector": "a:has-text(\"Post Thread\"), role=link[name=\"Post Thread\"], a[href*=\"newthread\"]",
+    "title_selector": "input[name=\"subject\"], input.textbox[name=\"subject\"]",
+    "editor_selector": "iframe >> body",
+    "submit_selector": "button:has-text(\"Post Thread\"), input[type=\"submit\"][value*=\"Post Thread\" i], role=button[name=\"Post Thread\"], input[name=\"submit\"]"
+  }
+}
